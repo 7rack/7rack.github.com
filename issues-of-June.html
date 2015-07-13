@@ -91,17 +91,25 @@
 <ul>
 <li>移动大量文件到另一个目录</li>
 </ul>
-<p>常用的方法是：<code>find /foo -maxdepth 1 -atime +365 -exec mv {} /bar \;</code> 这样一次仅移动一个文件。</p>
-<p>可使用<strong>xargs</strong>调用 subshell：<code>find /foo -maxdepth 1 -atime +366 -print0 |
-xargs -r0 sh -c 'mv "$@" /bar' firstfile</code></p>
+<p>常用的方法是：</p>
+<div class="highlight"><pre>find /foo -maxdepth 1 -atime +365 -exec mv {} /bar \;
+</pre></div>
+<p>这样一次仅移动一个文件。</p>
+<p>可使用<strong>xargs</strong>调用 subshell：</p>
+<div class="highlight"><pre><span class="n">find</span> <span class="o">/</span><span class="n">foo</span> <span class="o">-</span><span class="n">maxdepth</span> <span class="mi">1</span> <span class="o">-</span><span class="n">atime</span> <span class="o">+</span><span class="mi">366</span> <span class="o">-</span><span class="n">print0</span> <span class="o">|</span> <span class="n">xargs</span> <span class="o">-</span><span class="n">r0</span> <span class="n">sh</span> <span class="o">-</span><span class="n">c</span> <span class="err">'</span><span class="n">mv</span> <span class="s">"$@"</span> <span class="o">/</span><span class="n">bar</span><span class="err">'</span> <span class="n">firstfile</span>
+</pre></div>
 <p>此时<em>子shell</em>(<code>-c</code>)被 xargs 启动，<code>$@</code>部分使用双引号可以在文件名包含空格或换行能正确解析。
 最后部分的<strong>firstfile</strong>作为子shell的<code>$0</code>。</p>
 <ul>
 <li>打包压缩大量小文件</li>
 </ul>
-<p>常用的方法是：<code>find . -type f -print0| xargs -0 tar -czvf backup.tar.gz</code> 
-这里会反复的去执行<code>tar -c</code>创建 backup.tar.gz 。</p>
-<p>可以使用 tar 的<code>-T</code>选项：<code>find . -type f -print0 | tar -czvf backup.tar.gz --null -T -</code></p>
+<p>常用的方法是：</p>
+<div class="highlight"><pre>find . -type f -print0| xargs -0 tar -czvf backup.tar.gz 
+</pre></div>
+<p>这里会反复的去执行<code>tar -c</code>创建 backup.tar.gz 。</p>
+<p>可以使用 tar 的<code>-T</code>选项：</p>
+<div class="highlight"><pre>find . -type f -print0 | tar -czvf backup.tar.gz --null -T -
+</pre></div>
 <h2 id="mysql">MySQL主从<a class="headerlink" href="#mysql" title="Permanent link">¶</a></h2>
 <p>收到 Nagios 监控报警从库的同步出错，查看错误日志，发现<strong>1032</strong>错误：</p>
 <div class="highlight"><pre><span class="nt">140701</span> <span class="nt">15</span><span class="nd">:00:07</span> <span class="cp">[</span><span class="nx">ERROR</span><span class="cp">]</span> <span class="nt">Slave</span> <span class="nt">SQL</span><span class="o">:</span> <span class="nt">Could</span> <span class="nt">not</span> <span class="nt">execute</span> <span class="nt">Delete_rows</span> <span class="nt">event</span> <span class="nt">on</span> <span class="nt">table</span> <span class="nt">blog</span><span class="nc">.posts</span><span class="o">;</span> <span class="nt">Can</span><span class="s1">'t find record in '</span><span class="nt">posts</span><span class="s1">', Error_code: 1032; handler error HA_ERR_KEY_NOT_FOUND; the event'</span><span class="nt">s</span> <span class="nt">master</span> <span class="nt">log</span> <span class="nt">blog_0_122bin</span><span class="nc">.000771</span><span class="o">,</span> <span class="nt">end_log_pos</span> <span class="nt">695930248</span><span class="o">,</span> <span class="nt">Error_code</span><span class="o">:</span> <span class="nt">1032</span>
@@ -165,11 +173,11 @@ MBR 模式中， 基于SQL语句的复制(statement-based replication, SBR) 模�
 <section>
     <h2>Related Posts</h2>
 <ul class="related-posts-list">
+<li><a href="http://www.7rack.info/show-conky.html" title="conky">conky</a></li>
 <li><a href="http://www.7rack.info/cool-cmd-shortcut-key.html" title="命令行加速">命令行加速</a></li>
-<li><a href="http://www.7rack.info/sysrq-key.html" title="SysRq键">SysRq键</a></li>
-<li><a href="http://www.7rack.info/install-gamit10-4-on-linux-kernel-3.html" title="linux kernel 3.*.*.*下安装gamit 10.4">linux kernel 3.*.*.*下安装gamit 10.4</a></li>
-<li><a href="http://www.7rack.info/joseph-ring.html" title="Shell解决约瑟夫环">Shell解决约瑟夫环</a></li>
-<li><a href="http://www.7rack.info/issues-of-Feb.html" title="问题集锦(二月)">问题集锦(二月)</a></li>
+<li><a href="http://www.7rack.info/manual-upgrade-firefox.html" title="firefox手动升级">firefox手动升级</a></li>
+<li><a href="http://www.7rack.info/bash-script-learning-note.html" title="Bash学习笔记">Bash学习笔记</a></li>
+<li><a href="http://www.7rack.info/Apache_log_parse_and_analysis.html" title="Apache 日志匹配与分析">Apache 日志匹配与分析</a></li>
 </ul>
 <hr />
 </section>
@@ -197,7 +205,7 @@ MBR 模式中， 基于SQL语句的复制(statement-based replication, SBR) 模�
                     <span>1</span>
 </a></li>
                 <li><a href="http://www.7rack.info/tags.html#shell-ref">shell
-                    <span>5</span>
+                    <span>4</span>
 </a></li>
             </ul>
 <h4>Contact</h4>
