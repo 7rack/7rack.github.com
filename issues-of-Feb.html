@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en-US">
+    <head>
+        <meta charset="utf-8"> 
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="author" content="7rack" />
+        <meta name="copyright" content="7rack" />
+
+        <meta property="og:type" content="article" />
+        <meta name="twitter:card" content="summary">
+
+<meta name="keywords" content="Shell, SSH, Dell, route, Linux, " />
+
+<meta property="og:title" content="问题集锦(二月) "/>
+<meta property="og:url" content="http://www.7rack.info/issues-of-Feb.html" />
+<meta property="og:description" content="" />
+<meta property="og:site_name" content="轨迹" />
+<meta property="og:article:author" content="7rack" />
+<meta property="og:article:published_time" content="2014-02-25T13:03:17+08:00" />
+<meta name="twitter:title" content="问题集锦(二月) ">
+<meta name="twitter:description" content="">
+
+        <title>问题集锦(二月)  · 轨迹
+</title>
+        <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
+        <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css" rel="stylesheet">
+<link rel="stylesheet" href="http://www.7rack.info/theme/css/style.min.css?7aeecf36">
+<script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+     (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+     m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+     })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-39673245-1', 'auto');
+    ga('send', 'pageview');
+</script>
+    </head>
+    <body>
+        <div id="content-sans-footer">
+        <div class="navbar navbar-static-top">
+            <div class="navbar-inner">
+                <div class="container-fluid">
+                    <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </a>
+                    <a class="brand" href="http://www.7rack.info/"><span class=site-name>轨迹</span></a>
+                    <div class="nav-collapse collapse">
+                        <ul class="nav pull-right top-menu">
+                            <li ><a href="http://www.7rack.info">Home</a></li>
+                            <li ><a href="http://www.7rack.info/pages/about-me.html">About</a></li>
+                            <li ><a href="http://www.7rack.info/categories.html">Categories</a></li>
+                            <li ><a href="http://www.7rack.info/tags.html">Tags</a></li>
+                            <li ><a href="http://www.7rack.info/archives.html">Archives</a></li>
+                            <li><form class="navbar-search" action="http://www.7rack.info/search.html" onsubmit="return validateForm(this.elements['q'].value);"> <input type="text" class="search-query" placeholder="Search" name="q" id="tipue_search_input"></form></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid">
+            <div class="row-fluid">
+                <div class="span1"></div>
+                <div class="span10">
+<article>
+<div class="row-fluid">
+    <header class="page-header span10 offset2">
+    <h1><a href="http://www.7rack.info/issues-of-Feb.html"> 问题集锦(二月)  </a></h1>
+    </header>
+</div>
+
+<div class="row-fluid">
+    <div class="span2 table-of-content">
+        <nav>
+        <h4>Contents</h4>
+        <div class="toc">
+<ul>
+<li><a href="#cmd">cmd</a></li>
+<li><a href="#ssh">ssh</a></li>
+<li><a href="#_1">双线动态路由</a></li>
+<li><a href="#_2">硬件</a></li>
+</ul>
+</div>
+        </nav>
+    </div>
+    <div class="span8 article-content">
+
+            
+            
+<h2 id="cmd">cmd<a class="headerlink" href="#cmd" title="Permanent link">¶</a></h2>
+<p>让当前目录下的文件和文件夹按大小排序输出，一开始把问题想复杂了。
+可以通过一句命令,可读性也很好：</p>
+<div class="highlight"><pre><span class="c"># du -hs * | sort -h </span>
+<span class="m">0</span>       misc
+<span class="m">0</span>       net
+<span class="m">0</span>       proc
+<span class="m">0</span>       sys
+4.0K    media
+4.0K    mnt
+4.0K    srv
+16K     lost+found
+24K     ftp
+100K    home
+164K    dev
+4.3M    opt
+7.6M    bin
+11M     tmp
+14M     sbin
+25M     lib64
+34M     etc
+39M     boot
+125M    lib
+158M    var
+442M    root
+2.9G    usr
+</pre></div>
+<h2 id="ssh">ssh<a class="headerlink" href="#ssh" title="Permanent link">¶</a></h2>
+<p>当尝试通过域名连接一个 IP 已经变动（或经常变动）的主机，出现 
+host key for 'foo.example.com' differs from the key for the IP address 'xxxx' 信息。
+可通过创建<code>~/.ssh/config</code>文件：</p>
+<div class="highlight"><pre>Host foo
+    Hostname foo.example.com
+    CheckHostIP no
+    Port 32513
+    User danny
+</pre></div>
+<p>然后就可以通过<code>ssh foo</code>来连接。进一步的解释，可查看<code>man 5 ssh_config</code>。</p>
+<p>另外，在服务端最好禁用公钥认证以外的其他认证方式。
+和公钥认证有关配置项是：</p>
+<ul>
+<li><code>#RSAAuthentication yes</code>：Specifies whether pure RSA authentication is allowed.This option applies to protocol version 1 only</li>
+<li><code>#PubkeyAuthentication yes</code>：Specifies whether public key authentication is allowed.Note that this option applies to protocol version 2 only.</li>
+</ul>
+<p>其缺省值一般为 yes。</p>
+<p>禁用其他的认证方式，需修改下列配置项：</p>
+<div class="highlight"><pre>PasswordAuthentication no
+ChallengeResponseAuthentication no
+UsePAM no
+</pre></div>
+<p>详细的解释，可查看<code>man 5 sshd_config</code>。</p>
+<h2 id="_1">双线动态路由<a class="headerlink" href="#_1" title="Permanent link">¶</a></h2>
+<p>针对 CentOS 环境的设置</p>
+<ul>
+<li>在<code>/etciproute2/rt_tables</code>中添加电信、网通路由表：</li>
+</ul>
+<div class="highlight"><pre>    <span class="m">252</span>  tel
+    <span class="m">251</span>  cnc
+</pre></div>
+<ul>
+<li>在<code>/etc/init.d/network</code>的最后一行<em>exit $rc</em>前添加电信、网通路由表内容：</li>
+</ul>
+<div class="highlight"><pre>    ip route replace default via 电信网关 dev eth0   <span class="c">#默认路由线路</span>
+    ip route flush table tel    <span class="c">#刷新tel路由表</span>
+    ip route add default via 电信网关 dev eth0 src 电信IP table tel    <span class="c">#添加回环地址</span>
+    ip rule add from 电信IP table tel <span class="c">#从电信IP过来的，走tel路由</span>
+    ip route flush table cnc    <span class="c">#刷新cnc路由表</span>
+    ip route add default via 网通网关 dev eth1 src 网通IP table cnc
+    ip rule add from 网通IP table cnc   <span class="c">#从网通IP过来的走cnc路由</span>
+</pre></div>
+<h2 id="_2">硬件<a class="headerlink" href="#_2" title="Permanent link">¶</a></h2>
+<p>E2110 Multibit Error on DIMM B2. Reseat DIMM.
+简单查了下是<em>插槽 “B2” 中的内存模块已发生多位错误 (MBE)</em>。</p>
+<p>Dell 的技术支持页面也有说明：</p>
+<blockquote>
+<p>内存错误可能会毁坏高速缓存的数据，所以控制器旨在检测到这些内存错误并尝试从这些内存错误中恢复。单位内存错误可以由固件处理而不影响正常运行。如果单位错误的数目超过了阈值，将发送通知。</p>
+<p>多位错误更严重，因为此类错误会导致数据毁坏和数据丢失。以下是出现多位错误时采取的措施：</p>
+<blockquote>
+<p>如果在使用恶劣高速缓存启动控制器时访问高速缓存内存中的数据而导致多位错误，则固件将放弃高速缓存内容。固件将生成警告信息并发送到系统控制台，指示已放弃高速缓存并将生成事件。</p>
+<p>如果在运行时代码/数据或高速缓存中出现多位错误，则固件将停止。</p>
+<p>固件会将事件记录到固件内部事件日志并将在 POST 过程中记录指示已出现多位错误的信息。</p>
+</blockquote>
+<p>注：如果出现多位错误，请与 Dell 技术支持联络。</p>
+</blockquote>
+            <section>
+    <p id="post-share-links">
+    Share on:
+    <a href="http://twitter.com/home?status=%E9%97%AE%E9%A2%98%E9%9B%86%E9%94%A6%28%E4%BA%8C%E6%9C%88%29%20http%3A//www.7rack.info/issues-of-Feb.html" target="_blank" title="Share on Twitter">Twitter</a>
+    ❄
+    <a href="http://www.facebook.com/sharer/sharer.php?s=100&amp;p%5Burl%5D=http%3A//www.7rack.info/issues-of-Feb.html" target="_blank" title="Share on Facebook">Facebook</a>
+    ❄
+    <a href="https://plus.google.com/share?url=http%3A//www.7rack.info/issues-of-Feb.html" target="_blank" title="Share on Google Plus">Google+</a>
+    ❄
+    <a href="mailto:?subject=%E9%97%AE%E9%A2%98%E9%9B%86%E9%94%A6%28%E4%BA%8C%E6%9C%88%29&amp;body=http%3A//www.7rack.info/issues-of-Feb.html" target="_blank" title="Share via Email">Email</a>
+    </p>
+</section>
+
+            <section>
+<div class="accordion" id="accordion2">
+    <div class="accordion-group">
+        <div class="accordion-heading">
+            <a class="accordion-toggle disqus-comment-count" data-toggle="collapse" data-parent="#accordion2"
+                href="http://www.7rack.info/issues-of-Feb.html#disqus_thread">
+                Comments
+            </a>
+        </div>
+        <div id="disqus_thread" class="accordion-body collapse">
+            <div class="accordion-inner">
+                <div class="comments">
+                    <div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_shortname = '7rack';
+        var disqus_identifier = 'http://www.7rack.info/issues-of-Feb.html';
+    var disqus_url = 'http://www.7rack.info/issues-of-Feb.html';
+
+    (function() {
+         var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+         dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+         (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+     })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</section>
+
+            <hr/>
+<section>
+    <h2>Related Posts</h2>
+<ul class="related-posts-list">
+<li><a href="http://www.7rack.info/joseph-ring.html" title="Shell解决约瑟夫环">Shell解决约瑟夫环</a></li>
+<li><a href="http://www.7rack.info/bash-script-learning-note.html" title="Bash学习笔记">Bash学习笔记</a></li>
+<li><a href="http://www.7rack.info/issues-of-June.html" title="问题集锦(六月)">问题集锦(六月)</a></li>
+<li><a href="http://www.7rack.info/Apache_log_parse_and_analysis.html" title="Apache 日志匹配与分析">Apache 日志匹配与分析</a></li>
+</ul>
+<hr />
+</section>
+            <aside>
+            <nav>
+            <ul class="articles-timeline">
+                <li class="previous-article">« <a href="http://www.7rack.info/bash-script-learning-note.html" title="Previous: Bash学习笔记">Bash学习笔记</a></li>
+                <li class="next-article"><a href="http://www.7rack.info/creating-kvm-guest-on-ubuntu.html" title="Next: Ubuntu上运行KVM创建虚拟机">Ubuntu上运行KVM创建虚拟机</a> »</li>
+            </ul>
+            </nav>
+            </aside>
+        </div>
+        <section>
+        <div class="span2" style="float:right;font-size:0.9em;">
+            <h4>Published</h4>
+            <time pubdate="pubdate" datetime="2014-02-25T13:03:17+08:00"> 2 25, 2014</time>
+            <h4>Category</h4>
+            <a class="category-link" href="http://www.7rack.info/categories.html#linux-ref">Linux</a>
+            <h4>Tags</h4>
+            <ul class="list-of-tags tags-in-article">
+                <li><a href="http://www.7rack.info/tags.html#dell-ref">Dell
+                    <span>1</span>
+</a></li>
+                <li><a href="http://www.7rack.info/tags.html#route-ref">route
+                    <span>1</span>
+</a></li>
+                <li><a href="http://www.7rack.info/tags.html#shell-ref">Shell
+                    <span>5</span>
+</a></li>
+                <li><a href="http://www.7rack.info/tags.html#ssh-ref">SSH
+                    <span>1</span>
+</a></li>
+            </ul>
+<h4>Contact</h4>
+    <a href="mailto:vimxiang@gmail.com" title="My Email Address" class="sidebar-social-links" target="_blank">
+    <i class="fa fa-envelope sidebar-social-links"></i></a>
+    <a href="http://github.com/7rack" title="My Github Profile" class="sidebar-social-links" target="_blank">
+    <i class="fa fa-github sidebar-social-links"></i></a>
+        </div>
+        </section>
+</div>
+</article>
+                </div>
+                <div class="span1"></div>
+            </div>
+        </div>
+        <div id="push"></div>
+    </div>
+<footer>
+<div id="footer">
+    <ul class="footer-content">
+        <li class="elegant-power">Powered by <a href="http://getpelican.com/" title="Pelican Home Page">Pelican</a>. Theme: <a href="http://oncrashreboot.com/pelican-elegant" title="Theme Elegant Home Page">Elegant</a> by <a href="http://oncrashreboot.com" title="Talha Mansoor Home Page">Talha Mansoor</a></li>
+    </ul>
+</div>
+</footer>            <script src="http://code.jquery.com/jquery.min.js"></script>
+        <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+        <script>
+            function validateForm(query)
+            {
+                return (query.length > 0);
+            }
+        </script>
+
+            <script type="text/javascript">
+var disqus_shortname = '7rack';
+(function () {
+    var s = document.createElement('script'); s.async = true;
+    s.type = 'text/javascript';
+    s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+    (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+}());
+</script>
+<script  language="javascript" type="text/javascript">
+function uncollapse() {
+    if (window.location.hash.match(/^#comment-\d+$/)) {
+        $('#disqus_thread').collapse('show');
+    }
+}
+</script>
+<script type="text/javascript" language="JavaScript">
+uncollapse();
+window.onhashchange=function(){
+    if (window.location.hash.match(/^#comment-\d+$/))
+        window.location.reload(true);
+}
+</script>
+<script>
+$('#disqus_thread').on('shown', function () {
+    var link = document.getElementsByClassName('accordion-toggle');
+    var old_innerHTML = link[0].innerHTML;
+    $(link[0]).fadeOut(500, function() {
+        $(this).text('Click here to hide comments').fadeIn(500);
+    });
+    $('#disqus_thread').on('hidden', function () {
+        $(link[0]).fadeOut(500, function() {
+            $(this).text(old_innerHTML).fadeIn(500);
+        });
+    })
+})
+</script>
+
+
+    </body>
+    <!-- Theme: Elegant built for Pelican
+    License : http://oncrashreboot.com/pelican-elegant -->
+</html>

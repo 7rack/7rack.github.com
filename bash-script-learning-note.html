@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en-US">
+    <head>
+        <meta charset="utf-8"> 
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="author" content="7rack" />
+        <meta name="copyright" content="7rack" />
+
+        <meta property="og:type" content="article" />
+        <meta name="twitter:card" content="summary">
+
+<meta name="keywords" content="shell, Linux, " />
+
+<meta property="og:title" content="Bash学习笔记 "/>
+<meta property="og:url" content="http://www.7rack.info/bash-script-learning-note.html" />
+<meta property="og:description" content="最近复习bash script一些模糊点，在此记下笔记，如有错误麻烦指出 单引号和双引号的区别： 如果变量被双引号引用，变量还是需要由shell来解释,而且一旦赋值给变量多个单词，shell翻译时就会自动取消空格； 如果变量被单引号引用，变量就不会发生替换。 eg: [root@www ~]# grep -i &#34;$LOGNAME&#34; /etc/passwd root:x:0:0:root:/root:/bin/bash [root@www ~]# grep -i &#39;$LOGNAME&#39; /etc/passwd [root@www ~]# echo $? 1 同时让我想起在shell script中$*与$@的分别。只有在用双引号引用时二者才有区别。 双引号中的$*使得变量变为一个字符串；而双引号中的 ..." />
+<meta property="og:site_name" content="轨迹" />
+<meta property="og:article:author" content="7rack" />
+<meta property="og:article:published_time" content="2013-10-18T16:37:00+08:00" />
+<meta name="twitter:title" content="Bash学习笔记 ">
+<meta name="twitter:description" content="最近复习bash script一些模糊点，在此记下笔记，如有错误麻烦指出 单引号和双引号的区别： 如果变量被双引号引用，变量还是需要由shell来解释,而且一旦赋值给变量多个单词，shell翻译时就会自动取消空格； 如果变量被单引号引用，变量就不会发生替换。 eg: [root@www ~]# grep -i &#34;$LOGNAME&#34; /etc/passwd root:x:0:0:root:/root:/bin/bash [root@www ~]# grep -i &#39;$LOGNAME&#39; /etc/passwd [root@www ~]# echo $? 1 同时让我想起在shell script中$*与$@的分别。只有在用双引号引用时二者才有区别。 双引号中的$*使得变量变为一个字符串；而双引号中的 ...">
+
+        <title>Bash学习笔记  · 轨迹
+</title>
+        <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
+        <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css" rel="stylesheet">
+<link rel="stylesheet" href="http://www.7rack.info/theme/css/style.min.css?7aeecf36">
+<script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+     (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+     m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+     })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-39673245-1', 'auto');
+    ga('send', 'pageview');
+</script>
+    </head>
+    <body>
+        <div id="content-sans-footer">
+        <div class="navbar navbar-static-top">
+            <div class="navbar-inner">
+                <div class="container-fluid">
+                    <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </a>
+                    <a class="brand" href="http://www.7rack.info/"><span class=site-name>轨迹</span></a>
+                    <div class="nav-collapse collapse">
+                        <ul class="nav pull-right top-menu">
+                            <li ><a href="http://www.7rack.info">Home</a></li>
+                            <li ><a href="http://www.7rack.info/pages/about-me.html">About</a></li>
+                            <li ><a href="http://www.7rack.info/categories.html">Categories</a></li>
+                            <li ><a href="http://www.7rack.info/tags.html">Tags</a></li>
+                            <li ><a href="http://www.7rack.info/archives.html">Archives</a></li>
+                            <li><form class="navbar-search" action="http://www.7rack.info/search.html" onsubmit="return validateForm(this.elements['q'].value);"> <input type="text" class="search-query" placeholder="Search" name="q" id="tipue_search_input"></form></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid">
+            <div class="row-fluid">
+                <div class="span1"></div>
+                <div class="span10">
+<article>
+<div class="row-fluid">
+    <header class="page-header span10 offset2">
+    <h1><a href="http://www.7rack.info/bash-script-learning-note.html"> Bash学习笔记  </a></h1>
+    </header>
+</div>
+
+<div class="row-fluid">
+        <div class="span8 offset2 article-content">
+
+            
+            <p>最近复习bash script一些模糊点，在此记下笔记，如有错误麻烦指出</p>
+<ul>
+<li>单引号和双引号的区别：</li>
+</ul>
+<p>如果变量被<strong>双引号</strong>引用，变量还是需要由shell来解释,而且一旦赋值给变量多个单词，shell翻译时就会自动取消空格；
+如果变量被<strong>单引号</strong>引用，变量就不会发生替换。 eg:</p>
+<div class="highlight"><pre><span class="o">[</span>root@www ~<span class="o">]</span><span class="c"># grep -i &quot;$LOGNAME&quot; /etc/passwd</span>
+root:x:0:0:root:/root:/bin/bash
+<span class="o">[</span>root@www ~<span class="o">]</span><span class="c"># grep -i &#39;$LOGNAME&#39; /etc/passwd</span>
+<span class="o">[</span>root@www ~<span class="o">]</span><span class="c"># echo $?</span>
+1
+</pre></div>
+
+
+<p>同时让我想起在shell script中<code>$*</code>与<code>$@</code>的分别。只有在用双引号引用时二者才有区别。
+双引号中的<code>$*</code>使得变量变为一个字符串；而双引号中的<code>$@</code>，相当于其中的每一个变量都被双引号引用，每一个单词都被看作分开的字符串。<!--more--></p>
+<ul>
+<li>let命令</li>
+</ul>
+<p><strong>let</strong>是bash
+的内建命令，用来做数学计算和数字表示法检测（后面与test一起介绍下）。
+格式是：</p>
+<div class="highlight"><pre><span class="nb">let </span>expression
+<span class="o">((</span> expression <span class="o">))</span>
+</pre></div>
+
+
+<p>eg：</p>
+<div class="highlight"><pre><span class="o">[</span>root@www ~<span class="o">]</span><span class="c"># i=1</span>
+<span class="o">[</span>root@www ~<span class="o">]</span><span class="c"># let &quot;i=i+2&quot;</span>
+<span class="o">[</span>root@www ~<span class="o">]</span><span class="c"># echo $i</span>
+3
+<span class="o">[</span>root@www ~<span class="o">]</span><span class="c"># ((i=i-2))</span>
+<span class="o">[</span>root@www ~<span class="o">]</span><span class="c"># echo $i</span>
+1
+</pre></div>
+
+
+<p>注意到它不用<code>$</code>符号去引用变量，同时还有个不常用的计算数学表达式的格式<code>$[ expression ]</code></p>
+<ul>
+<li>test命令</li>
+</ul>
+<p>格式</p>
+<div class="highlight"><pre><span class="nb">test </span><span class="k">for</span> numbers and strings-- old format
+<span class="o">[</span> string/numeric expression <span class="o">]</span>
+
+<span class="nb">test </span><span class="k">for</span> strings-- new format
+<span class="o">[[</span> string expression <span class="o">]]</span>
+
+<span class="nb">let </span><span class="k">for</span> numbers-- new format
+<span class="o">((</span> numeric expression <span class="o">))</span>
+</pre></div>
+
+
+<p>eg：</p>
+<div class="highlight"><pre><span class="o">[</span>root@www ~<span class="o">]</span><span class="c"># name=tom</span>
+<span class="o">[</span>root@www ~<span class="o">]</span><span class="c"># friend=Jose</span>
+<span class="o">[</span>root@www ~<span class="o">]</span><span class="c"># x=2</span>
+<span class="o">[</span>root@www ~<span class="o">]</span><span class="c"># y=2</span>
+
+<span class="o">[</span>root@www ~<span class="o">]</span><span class="c"># test $name != Tom</span>
+<span class="o">[</span>root@www ~<span class="o">]</span><span class="c"># echo $?</span>
+0
+
+<span class="o">[</span>root@www ~<span class="o">]</span><span class="c"># [[ $name == [Tt]om &amp;&amp; $friend == &quot;Jose&quot; ]]</span>
+<span class="o">[</span>root@www ~<span class="o">]</span><span class="c"># echo $?</span>
+0
+
+<span class="o">[</span>root@www ~<span class="o">]</span><span class="c"># ((x== 2 &amp;&amp; y == 3))</span>
+<span class="o">[</span>root@www ~<span class="o">]</span><span class="c"># echo $?</span>
+1
+</pre></div>
+            <section>
+    <p id="post-share-links">
+    Share on:
+    <a href="http://twitter.com/home?status=Bash%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%20http%3A//www.7rack.info/bash-script-learning-note.html" target="_blank" title="Share on Twitter">Twitter</a>
+    ❄
+    <a href="http://www.facebook.com/sharer/sharer.php?s=100&amp;p%5Burl%5D=http%3A//www.7rack.info/bash-script-learning-note.html" target="_blank" title="Share on Facebook">Facebook</a>
+    ❄
+    <a href="https://plus.google.com/share?url=http%3A//www.7rack.info/bash-script-learning-note.html" target="_blank" title="Share on Google Plus">Google+</a>
+    ❄
+    <a href="mailto:?subject=Bash%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0&amp;body=http%3A//www.7rack.info/bash-script-learning-note.html" target="_blank" title="Share via Email">Email</a>
+    </p>
+</section>
+
+            <section>
+<div class="accordion" id="accordion2">
+    <div class="accordion-group">
+        <div class="accordion-heading">
+            <a class="accordion-toggle disqus-comment-count" data-toggle="collapse" data-parent="#accordion2"
+                href="http://www.7rack.info/bash-script-learning-note.html#disqus_thread">
+                Comments
+            </a>
+        </div>
+        <div id="disqus_thread" class="accordion-body collapse">
+            <div class="accordion-inner">
+                <div class="comments">
+                    <div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_shortname = '7rack';
+        var disqus_identifier = 'http://www.7rack.info/bash-script-learning-note.html';
+    var disqus_url = 'http://www.7rack.info/bash-script-learning-note.html';
+
+    (function() {
+         var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+         dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+         (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+     })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</section>
+
+            <hr/>
+<section>
+    <h2>Related Posts</h2>
+<ul class="related-posts-list">
+<li><a href="http://www.7rack.info/joseph-ring.html" title="Shell解决约瑟夫环">Shell解决约瑟夫环</a></li>
+<li><a href="http://www.7rack.info/issues-of-Feb.html" title="问题集锦(二月)">问题集锦(二月)</a></li>
+<li><a href="http://www.7rack.info/issues-of-June.html" title="问题集锦(六月)">问题集锦(六月)</a></li>
+<li><a href="http://www.7rack.info/Apache_log_parse_and_analysis.html" title="Apache 日志匹配与分析">Apache 日志匹配与分析</a></li>
+</ul>
+<hr />
+</section>
+            <aside>
+            <nav>
+            <ul class="articles-timeline">
+                <li class="previous-article">« <a href="http://www.7rack.info/joseph-ring.html" title="Previous: Shell解决约瑟夫环">Shell解决约瑟夫环</a></li>
+                <li class="next-article"><a href="http://www.7rack.info/issues-of-Feb.html" title="Next: 问题集锦(二月)">问题集锦(二月)</a> »</li>
+            </ul>
+            </nav>
+            </aside>
+        </div>
+        <section>
+        <div class="span2" style="float:right;font-size:0.9em;">
+            <h4>Published</h4>
+            <time pubdate="pubdate" datetime="2013-10-18T16:37:00+08:00">10 18, 2013</time>
+            <h4>Category</h4>
+            <a class="category-link" href="http://www.7rack.info/categories.html#linux-ref">Linux</a>
+            <h4>Tags</h4>
+            <ul class="list-of-tags tags-in-article">
+                <li><a href="http://www.7rack.info/tags.html#shell-ref">shell
+                    <span>5</span>
+</a></li>
+            </ul>
+<h4>Contact</h4>
+    <a href="mailto:vimxiang@gmail.com" title="My Email Address" class="sidebar-social-links" target="_blank">
+    <i class="fa fa-envelope sidebar-social-links"></i></a>
+    <a href="http://github.com/7rack" title="My Github Profile" class="sidebar-social-links" target="_blank">
+    <i class="fa fa-github sidebar-social-links"></i></a>
+        </div>
+        </section>
+</div>
+</article>
+                </div>
+                <div class="span1"></div>
+            </div>
+        </div>
+        <div id="push"></div>
+    </div>
+<footer>
+<div id="footer">
+    <ul class="footer-content">
+        <li class="elegant-power">Powered by <a href="http://getpelican.com/" title="Pelican Home Page">Pelican</a>. Theme: <a href="http://oncrashreboot.com/pelican-elegant" title="Theme Elegant Home Page">Elegant</a> by <a href="http://oncrashreboot.com" title="Talha Mansoor Home Page">Talha Mansoor</a></li>
+    </ul>
+</div>
+</footer>            <script src="http://code.jquery.com/jquery.min.js"></script>
+        <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+        <script>
+            function validateForm(query)
+            {
+                return (query.length > 0);
+            }
+        </script>
+
+            <script type="text/javascript">
+var disqus_shortname = '7rack';
+(function () {
+    var s = document.createElement('script'); s.async = true;
+    s.type = 'text/javascript';
+    s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+    (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+}());
+</script>
+<script  language="javascript" type="text/javascript">
+function uncollapse() {
+    if (window.location.hash.match(/^#comment-\d+$/)) {
+        $('#disqus_thread').collapse('show');
+    }
+}
+</script>
+<script type="text/javascript" language="JavaScript">
+uncollapse();
+window.onhashchange=function(){
+    if (window.location.hash.match(/^#comment-\d+$/))
+        window.location.reload(true);
+}
+</script>
+<script>
+$('#disqus_thread').on('shown', function () {
+    var link = document.getElementsByClassName('accordion-toggle');
+    var old_innerHTML = link[0].innerHTML;
+    $(link[0]).fadeOut(500, function() {
+        $(this).text('Click here to hide comments').fadeIn(500);
+    });
+    $('#disqus_thread').on('hidden', function () {
+        $(link[0]).fadeOut(500, function() {
+            $(this).text(old_innerHTML).fadeIn(500);
+        });
+    })
+})
+</script>
+
+
+    </body>
+    <!-- Theme: Elegant built for Pelican
+    License : http://oncrashreboot.com/pelican-elegant -->
+</html>

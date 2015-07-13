@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en-US">
+    <head>
+        <meta charset="utf-8"> 
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="author" content="7rack" />
+        <meta name="copyright" content="7rack" />
+
+        <meta property="og:type" content="article" />
+        <meta name="twitter:card" content="summary">
+
+<meta name="keywords" content="Cacti, Nagios, NPC, Monitoring, " />
+
+<meta property="og:title" content="NPC安装 "/>
+<meta property="og:url" content="http://www.7rack.info/npc-installation.html" />
+<meta property="og:description" content="介绍 NPC 安装过程，及遇到的常见问题解决方法。" />
+<meta property="og:site_name" content="轨迹" />
+<meta property="og:article:author" content="7rack" />
+<meta property="og:article:published_time" content="2014-06-19T13:57:53+08:00" />
+<meta name="twitter:title" content="NPC安装 ">
+<meta name="twitter:description" content="介绍 NPC 安装过程，及遇到的常见问题解决方法。">
+
+        <title>NPC安装  · 轨迹
+</title>
+        <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
+        <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css" rel="stylesheet">
+<link rel="stylesheet" href="http://www.7rack.info/theme/css/style.min.css?7aeecf36">
+<script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+     (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+     m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+     })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-39673245-1', 'auto');
+    ga('send', 'pageview');
+</script>
+    </head>
+    <body>
+        <div id="content-sans-footer">
+        <div class="navbar navbar-static-top">
+            <div class="navbar-inner">
+                <div class="container-fluid">
+                    <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </a>
+                    <a class="brand" href="http://www.7rack.info/"><span class=site-name>轨迹</span></a>
+                    <div class="nav-collapse collapse">
+                        <ul class="nav pull-right top-menu">
+                            <li ><a href="http://www.7rack.info">Home</a></li>
+                            <li ><a href="http://www.7rack.info/pages/about-me.html">About</a></li>
+                            <li ><a href="http://www.7rack.info/categories.html">Categories</a></li>
+                            <li ><a href="http://www.7rack.info/tags.html">Tags</a></li>
+                            <li ><a href="http://www.7rack.info/archives.html">Archives</a></li>
+                            <li><form class="navbar-search" action="http://www.7rack.info/search.html" onsubmit="return validateForm(this.elements['q'].value);"> <input type="text" class="search-query" placeholder="Search" name="q" id="tipue_search_input"></form></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid">
+            <div class="row-fluid">
+                <div class="span1"></div>
+                <div class="span10">
+<article>
+<div class="row-fluid">
+    <header class="page-header span10 offset2">
+    <h1><a href="http://www.7rack.info/npc-installation.html"> NPC安装  </a></h1>
+    </header>
+</div>
+
+<div class="row-fluid">
+    <div class="span2 table-of-content">
+        <nav>
+        <h4>Contents</h4>
+        <div class="toc">
+<ul>
+<li><a href="#_1">依赖</a></li>
+<li><a href="#php">PHP</a></li>
+<li><a href="#npc">安装NPC</a></li>
+<li><a href="#nagios">配置Nagios</a></li>
+<li><a href="#ndo2db">安装配置 NDO2DB</a></li>
+<li><a href="#npc_">调整npc_数据表</a></li>
+<li><a href="#note">Note</a></li>
+</ul>
+</div>
+        </nav>
+    </div>
+    <div class="span8 article-content">
+
+            
+            
+<h2 id="_1">依赖<a class="headerlink" href="#_1" title="Permanent link">¶</a></h2>
+<p>以下是至少需要的依赖：</p>
+<ul>
+<li>PHP 5.2( PDO 和 JSON 模块支持是必需的)。</li>
+<li>最新的 NPC 版本</li>
+<li>NDOUtils 1.4b7</li>
+<li>Nagios  3.x</li>
+<li>Cacti  0.8.7b</li>
+<li>Cacti Plugin Architecture v2.0</li>
+</ul>
+<h2 id="php">PHP<a class="headerlink" href="#php" title="Permanent link">¶</a></h2>
+<p>注意修改php.ini文件中的<strong>memory_limit</strong>值，以足够运行 NPC。至少需要32 M：</p>
+<p><code>memory_limit = 32M</code></p>
+<p>检查是否有PDO和JSON模块：</p>
+<div class="highlight"><pre><span class="p">[</span><span class="n">root</span><span class="mi">@7</span><span class="n">rack</span> <span class="o">~</span><span class="p">]</span><span class="err">#</span> <span class="n">php</span> <span class="o">-</span><span class="n">m</span>  <span class="o">|</span> <span class="n">grep</span> <span class="o">-</span><span class="n">i</span> <span class="err">'</span><span class="n">pdo</span><span class="err">'</span>
+<span class="n">PDO</span>
+<span class="n">pdo_mysql</span>
+<span class="n">pdo_sqlite</span>
+<span class="p">[</span><span class="n">root</span><span class="mi">@7</span><span class="n">rack</span> <span class="o">~</span><span class="p">]</span><span class="err">#</span> <span class="n">php</span> <span class="o">-</span><span class="n">m</span>  <span class="o">|</span> <span class="n">grep</span> <span class="o">-</span><span class="n">i</span> <span class="err">'</span><span class="n">json</span><span class="err">'</span>
+<span class="n">json</span>
+</pre></div>
+<h2 id="npc">安装NPC<a class="headerlink" href="#npc" title="Permanent link">¶</a></h2>
+<p>Cacti 必需安装了plugin architecture v2.0以上版本，才能安装 NPC。使用最新版Cacti已内建此功能。</p>
+<p>Note：如果使用的 NPC 版本较低，可从<code>&lt;path_to_cacti&gt;/include/global.php</code>文件中移除</p>
+<div class="highlight"><pre><span class="p">$</span><span class="nv">plugins</span><span class="x">[] = 'npc';</span>
+</pre></div>
+<p>自此，应该可以看到 NPC 这个标签，但是没有 NDO2DB 传输数据过来，所以没有任何信息。
+同时也要在  Console 标签 -&gt; Settings -&gt; NPC 标签下设置 NPC。</p>
+<h2 id="nagios">配置Nagios<a class="headerlink" href="#nagios" title="Permanent link">¶</a></h2>
+<p>修改<strong>nagios.cfg</strong>文件中的以下参数。</p>
+<ul>
+<li>
+<p>允许传递命令给 Nagios 进程：</p>
+<p><code>check_external_commands=1</code></p>
+</li>
+<li>
+<p>立即检查外部命令：</p>
+<p><code>command_check_interval=-1</code></p>
+</li>
+<li>
+<p>代理所有事件</p>
+<p><code>event_broker_options=-1</code></p>
+</li>
+<li>
+<p>代理事件的配置文件，稍后需要安装。此处假设 Nagios  安装在<code>/usr/local/nagios</code>，同时注意如果 Nagios 版本情况，和ndoutils的安装方式，也可能会是ndomod-3x.o：</p>
+<p><code>broker_module=/usr/local/nagios/bin/ndomod.o config_file=/usr/local/nagios/etc/ndomod.cfg</code></p>
+</li>
+<li>
+<p>如果你想通过 Nagios 插件的性能数据在 Cacti 上绘图：</p>
+<p><code>process_performance_data=1</code></p>
+</li>
+</ul>
+<h2 id="ndo2db">安装配置 NDO2DB<a class="headerlink" href="#ndo2db" title="Permanent link">¶</a></h2>
+<p>NDO2DB 是 NDOUTILS 包的一部分。 Nagios 通过事件代理处理 NDO2DB，NDO2DB 来处理将 Nagios 的数据插入<code>npc_</code>表。</p>
+<p>ndo2db 可通过<code>unix socket</code>或者<code>TCP</code>与 Nagios ndomod.o 连接。同时要在<strong>ndo2db.cfg</strong>和<strong>ndomod.cfg</strong>中设置一致。
+推荐使用 TCP 的方式，最初我默认使用 unix socket ，出现如下错误：</p>
+<blockquote>
+<p>Jun 18 10:53:36 testhost nagios: ndomod: NDOMOD 1.5.2 (06-08-2012) Copyright (c) 2009 Nagios Core Development Team and Community Contributors</p>
+<p>Jun 18 10:53:36 testhost nagios: ndomod: Could not open data sink!  I'll keep trying, but some output may get lost...</p>
+<p>Jun 18 10:53:36 testhost nagios: Event broker module '/usr/local/nagios/bin/ndomod.o' initialized successfully</p>
+<p>Jun 18 11:08:48 testhost nagios: ndomod: Still unable to connect to data sink.  16342 items lost, 5000 queued items to flush.</p>
+</blockquote>
+<p>改为 TCP 连接方式，该错误消除。</p>
+<p>但是又出现了如下错误：</p>
+<blockquote>
+<p>Jun 18 11:33:50 testhost ndo2db: Warning: Retrying message send. This can occur because you have too few messages allowed or too few total bytes allowed in message queues. You are currently using 64 of 16 messages and 65536 of 65536 bytes in the queue. See README for kernel tuning options. </p>
+<p>Jun 18 11:33:50 testhost ndo2db: Message sent to queue. </p>
+<p>Jun 18 11:33:50 testhost ndo2db: Warning: queue send error, retrying...  </p>
+</blockquote>
+<p>上述错误需要修改内核参数中的消息队列，查看默认的消息队列</p>
+<div class="highlight"><pre># cat /proc/sys/kernel/msg{max,mni,mnb}
+65536
+16
+65536
+</pre></div>
+<p>通过<code>echo 131072 &gt; /proc/sys/kernel/msgmnb</code>暂时调节，以查看上述警告是否存在，
+直到调整出合适大小。就可以加入到<code>/etc/sysctl</code>中，在系统重启后依然生效。</p>
+<p>下面贴出<strong> ndo2db.cfg </strong> 和 <strong> ndomod.cfg </strong>配置：</p>
+<p><strong>ndo2db.cfg</strong></p>
+<div class="highlight"><pre>ndo2db_user=nagios
+ndo2db_group=nagios
+socket_type=tcp
+socket_name=/usr/local/nagios/var/ndo.sock
+tcp_port=5668
+db_servertype=mysql
+db_host=localhost
+db_port=3306
+db_name=DATABSE_NAME
+db_user=DATABASE_USER
+db_pass=DATABASE_PASSWORD
+db_prefix=npc_
+max_timedevents_age=1440
+max_systemcommands_age=10080
+max_servicechecks_age=10080
+max_hostchecks_age=10080
+max_eventhandlers_age=44640
+debug_level=1
+debug_verbosity=1
+debug_file=/usr/local/nagios/var/ndo2db.debug
+max_debug_file_size=1000000
+</pre></div>
+<p><strong>ndomod.cfg</strong> </p>
+<div class="highlight"><pre>instance_name=default
+output_type=tcpsocket
+output=127.0.0.1
+tcp_port=5668
+output_buffer_items=5000
+buffer_file=/usr/local/nagios/var/ndomod.tmp
+file_rotation_interval=14400
+file_rotation_timeout=60
+reconnect_interval=15
+reconnect_warning_interval=15
+data_processing_options=-1
+config_output_options=2
+</pre></div>
+<h2 id="npc_">调整npc_数据表<a class="headerlink" href="#npc_" title="Permanent link">¶</a></h2>
+<p>使用时会发现 Nagios 中<code>/var/log/messages</code>中在插入数据时有错误，
+因此需要调整几个数据表：</p>
+<div class="highlight"><pre>alter table npc_eventhandlers add long_output TEXT NOT NULL default '' after output;
+alter table npc_hostchecks add long_output TEXT NOT NULL default '' after output;
+alter table npc_hoststatus add long_output TEXT NOT NULL default '' after output;
+alter table npc_notifications add long_output TEXT NOT NULL default '' after output;
+alter table npc_servicechecks add long_output TEXT NOT NULL default '' after output;
+alter table npc_servicestatus add long_output TEXT NOT NULL default '' after output;
+alter table npc_statehistory add long_output TEXT NOT NULL default '' after output;
+alter table npc_systemcommands add long_output TEXT NOT NULL default '' after output;
+</pre></div>
+<p>可用如下命令查询，数据是否成功写入npc_表中：</p>
+<div class="highlight"><pre>select host_id,alias,address from npc_hosts;
+</pre></div>
+<p>如果在 NPC 标签中 Nagios 显示 OFF，则说明<code>npc_programstatus</code>表中没有<code>status_update_time</code>，或者时间离现在很久：</p>
+<div class="highlight"><pre>mysql&gt; select programstatus_id,instance_id,status_update_time,last_command_check,last_log_rotation from npc_programstatus;
++------------------+-------------+---------------------+---------------------+---------------------+
+| programstatus_id | instance_id | status_update_time  | last_command_check  | last_log_rotation   |
++------------------+-------------+---------------------+---------------------+---------------------+
+|                5 |           1 | 2014-06-20 00:09:00 | 2014-06-20 00:09:00 | 2014-06-20 00:00:00 |
++------------------+-------------+---------------------+---------------------+---------------------+
+1 row in set (0.00 sec)
+</pre></div>
+<h2 id="note">Note<a class="headerlink" href="#note" title="Permanent link">¶</a></h2>
+<p>如果 ndo2db 进程经常自动结束，可将它加入<strong>init</strong>中，自动检测重启：</p>
+<div class="highlight"><pre><span class="n">ndo</span><span class="o">:</span><span class="mi">345</span><span class="o">:</span><span class="n">respawn</span><span class="o">:/</span><span class="n">usr</span><span class="sr">/local/nagios/bin/ndo2db -c /usr/local/nagios/etc/</span><span class="n">ndo2db</span><span class="o">.</span><span class="na">cfg</span>
+</pre></div>
+<p>如果出现 Nagios 无法正常停止或重启，可在<code>/etc/init.d/nagios</code>加入如下内容：</p>
+<div class="highlight"><pre>## BEGIN INIT INFO
+# Provides:             nagios
+# Required-Start:       ndo2db
+# Required-Stop:        ndo2db
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description:    start and stop Nagios monitoring server
+# Description:          Nagios is is a service monitoring system 
+### END INIT INFO
+</pre></div>
+            <section>
+    <p id="post-share-links">
+    Share on:
+    <a href="http://twitter.com/home?status=NPC%E5%AE%89%E8%A3%85%20http%3A//www.7rack.info/npc-installation.html" target="_blank" title="Share on Twitter">Twitter</a>
+    ❄
+    <a href="http://www.facebook.com/sharer/sharer.php?s=100&amp;p%5Burl%5D=http%3A//www.7rack.info/npc-installation.html" target="_blank" title="Share on Facebook">Facebook</a>
+    ❄
+    <a href="https://plus.google.com/share?url=http%3A//www.7rack.info/npc-installation.html" target="_blank" title="Share on Google Plus">Google+</a>
+    ❄
+    <a href="mailto:?subject=NPC%E5%AE%89%E8%A3%85&amp;body=http%3A//www.7rack.info/npc-installation.html" target="_blank" title="Share via Email">Email</a>
+    </p>
+</section>
+
+            <section>
+<div class="accordion" id="accordion2">
+    <div class="accordion-group">
+        <div class="accordion-heading">
+            <a class="accordion-toggle disqus-comment-count" data-toggle="collapse" data-parent="#accordion2"
+                href="http://www.7rack.info/npc-installation.html#disqus_thread">
+                Comments
+            </a>
+        </div>
+        <div id="disqus_thread" class="accordion-body collapse">
+            <div class="accordion-inner">
+                <div class="comments">
+                    <div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_shortname = '7rack';
+        var disqus_identifier = 'http://www.7rack.info/npc-installation.html';
+    var disqus_url = 'http://www.7rack.info/npc-installation.html';
+
+    (function() {
+         var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+         dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+         (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+     })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</section>
+
+            <hr/>
+<section>
+    <h2>Related Posts</h2>
+<ul class="related-posts-list">
+<li><a href="http://www.7rack.info/5-Unsung-tools-of-devops.html" title="5款经典的 DevOps 工具">5款经典的 DevOps 工具</a></li>
+</ul>
+<hr />
+</section>
+            <aside>
+            <nav>
+            <ul class="articles-timeline">
+                <li class="previous-article">« <a href="http://www.7rack.info/linux-performance-analysis-and-tools.html" title="Previous: Linux 性能分析及工具">Linux 性能分析及工具</a></li>
+                <li class="next-article"><a href="http://www.7rack.info/issues-of-June.html" title="Next: 问题集锦(六月)">问题集锦(六月)</a> »</li>
+            </ul>
+            </nav>
+            </aside>
+        </div>
+        <section>
+        <div class="span2" style="float:right;font-size:0.9em;">
+            <h4>Published</h4>
+            <time pubdate="pubdate" datetime="2014-06-19T13:57:53+08:00"> 6 19, 2014</time>
+            <h4>Category</h4>
+            <a class="category-link" href="http://www.7rack.info/categories.html#monitoring-ref">Monitoring</a>
+            <h4>Tags</h4>
+            <ul class="list-of-tags tags-in-article">
+                <li><a href="http://www.7rack.info/tags.html#cacti-ref">Cacti
+                    <span>2</span>
+</a></li>
+                <li><a href="http://www.7rack.info/tags.html#nagios-ref">Nagios
+                    <span>1</span>
+</a></li>
+                <li><a href="http://www.7rack.info/tags.html#npc-ref">NPC
+                    <span>1</span>
+</a></li>
+            </ul>
+<h4>Contact</h4>
+    <a href="mailto:vimxiang@gmail.com" title="My Email Address" class="sidebar-social-links" target="_blank">
+    <i class="fa fa-envelope sidebar-social-links"></i></a>
+    <a href="http://github.com/7rack" title="My Github Profile" class="sidebar-social-links" target="_blank">
+    <i class="fa fa-github sidebar-social-links"></i></a>
+        </div>
+        </section>
+</div>
+</article>
+                </div>
+                <div class="span1"></div>
+            </div>
+        </div>
+        <div id="push"></div>
+    </div>
+<footer>
+<div id="footer">
+    <ul class="footer-content">
+        <li class="elegant-power">Powered by <a href="http://getpelican.com/" title="Pelican Home Page">Pelican</a>. Theme: <a href="http://oncrashreboot.com/pelican-elegant" title="Theme Elegant Home Page">Elegant</a> by <a href="http://oncrashreboot.com" title="Talha Mansoor Home Page">Talha Mansoor</a></li>
+    </ul>
+</div>
+</footer>            <script src="http://code.jquery.com/jquery.min.js"></script>
+        <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+        <script>
+            function validateForm(query)
+            {
+                return (query.length > 0);
+            }
+        </script>
+
+            <script type="text/javascript">
+var disqus_shortname = '7rack';
+(function () {
+    var s = document.createElement('script'); s.async = true;
+    s.type = 'text/javascript';
+    s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+    (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+}());
+</script>
+<script  language="javascript" type="text/javascript">
+function uncollapse() {
+    if (window.location.hash.match(/^#comment-\d+$/)) {
+        $('#disqus_thread').collapse('show');
+    }
+}
+</script>
+<script type="text/javascript" language="JavaScript">
+uncollapse();
+window.onhashchange=function(){
+    if (window.location.hash.match(/^#comment-\d+$/))
+        window.location.reload(true);
+}
+</script>
+<script>
+$('#disqus_thread').on('shown', function () {
+    var link = document.getElementsByClassName('accordion-toggle');
+    var old_innerHTML = link[0].innerHTML;
+    $(link[0]).fadeOut(500, function() {
+        $(this).text('Click here to hide comments').fadeIn(500);
+    });
+    $('#disqus_thread').on('hidden', function () {
+        $(link[0]).fadeOut(500, function() {
+            $(this).text(old_innerHTML).fadeIn(500);
+        });
+    })
+})
+</script>
+
+
+    </body>
+    <!-- Theme: Elegant built for Pelican
+    License : http://oncrashreboot.com/pelican-elegant -->
+</html>

@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en-US">
+    <head>
+        <meta charset="utf-8"> 
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="author" content="7rack" />
+        <meta name="copyright" content="7rack" />
+
+        <meta property="og:type" content="article" />
+        <meta name="twitter:card" content="summary">
+
+<meta name="keywords" content="Linux, htop, mpstat, vmstat, nicstat, dstat, sar, netstat, pidstat, strace, tcpdump, blktrace, iotop, slabtop, Linux, " />
+
+<meta property="og:title" content="Linux 性能分析及工具 "/>
+<meta property="og:url" content="http://www.7rack.info/linux-performance-analysis-and-tools.html" />
+<meta property="og:description" content="" />
+<meta property="og:site_name" content="轨迹" />
+<meta property="og:article:author" content="7rack" />
+<meta property="og:article:published_time" content="2014-05-13T11:04:17+08:00" />
+<meta name="twitter:title" content="Linux 性能分析及工具 ">
+<meta name="twitter:description" content="">
+
+        <title>Linux 性能分析及工具  · 轨迹
+</title>
+        <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
+        <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css" rel="stylesheet">
+<link rel="stylesheet" href="http://www.7rack.info/theme/css/style.min.css?7aeecf36">
+<script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+     (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+     m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+     })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-39673245-1', 'auto');
+    ga('send', 'pageview');
+</script>
+    </head>
+    <body>
+        <div id="content-sans-footer">
+        <div class="navbar navbar-static-top">
+            <div class="navbar-inner">
+                <div class="container-fluid">
+                    <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </a>
+                    <a class="brand" href="http://www.7rack.info/"><span class=site-name>轨迹</span></a>
+                    <div class="nav-collapse collapse">
+                        <ul class="nav pull-right top-menu">
+                            <li ><a href="http://www.7rack.info">Home</a></li>
+                            <li ><a href="http://www.7rack.info/pages/about-me.html">About</a></li>
+                            <li ><a href="http://www.7rack.info/categories.html">Categories</a></li>
+                            <li ><a href="http://www.7rack.info/tags.html">Tags</a></li>
+                            <li ><a href="http://www.7rack.info/archives.html">Archives</a></li>
+                            <li><form class="navbar-search" action="http://www.7rack.info/search.html" onsubmit="return validateForm(this.elements['q'].value);"> <input type="text" class="search-query" placeholder="Search" name="q" id="tipue_search_input"></form></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid">
+            <div class="row-fluid">
+                <div class="span1"></div>
+                <div class="span10">
+<article>
+<div class="row-fluid">
+    <header class="page-header span10 offset2">
+    <h1><a href="http://www.7rack.info/linux-performance-analysis-and-tools.html"> Linux 性能分析及工具  </a></h1>
+    </header>
+</div>
+
+<div class="row-fluid">
+    <div class="span2 table-of-content">
+        <nav>
+        <h4>Contents</h4>
+        <div class="toc">
+<ul>
+<li><a href="#_1">背景</a></li>
+<li><a href="#analysis-and-tools">Analysis and Tools</a><ul>
+<li><a href="#basic">Basic</a><ul>
+<li><a href="#uptime">uptime</a></li>
+<li><a href="#top">top</a></li>
+<li><a href="#htop">htop</a></li>
+<li><a href="#mpstat">mpstat</a></li>
+<li><a href="#iostat">iostat</a></li>
+<li><a href="#vmstat">vmstat</a></li>
+<li><a href="#free">free</a></li>
+<li><a href="#nicstat">nicstat</a></li>
+<li><a href="#dstat">dstat</a></li>
+</ul>
+</li>
+<li><a href="#intermediate">Intermediate</a><ul>
+<li><a href="#sar">sar</a></li>
+<li><a href="#netstat">netstat</a></li>
+<li><a href="#pidstat">pidstat</a></li>
+<li><a href="#strace">strace</a></li>
+<li><a href="#tcpdump">tcpdump</a></li>
+<li><a href="#blktrace">blktrace</a></li>
+<li><a href="#iotop">iotop</a></li>
+<li><a href="#slabtop">slabtop</a></li>
+<li><a href="#sysctl">sysctl</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+        </nav>
+    </div>
+    <div class="span8 article-content">
+
+            
+            
+<h2 id="_1">背景<a class="headerlink" href="#_1" title="Permanent link">¶</a></h2>
+<p>为什么要做系统性能分析？</p>
+<ul>
+<li><strong>减少成本</strong>：找到并减少资源浪费，调整策略，用较少的资源做更多的事</li>
+<li><strong>构建可伸缩架构</strong>：理解系统的限制和可扩展性</li>
+<li><strong>解决问题</strong>：找到瓶颈和延迟异常值</li>
+</ul>
+<p>你需要知道一些系统知识</p>
+<div class="highlight"><pre>                               Operating System 
+            +------------------------------------------------------+                    
+            |             Applications                             |                    
+            |            +-----------------------------------------+                    
+            |            |         System Libraries                |    user-level      
+            +------------+-----------------------------------------+                    
+       ^    |              System Call Interface                   |XXXXXXXXXXXXXXXXXXXX
+       |    +--------------------------+--------------+------------+                    
+       |    |      VFS                 |    Sockets   |            |     kernel-level   
+       |    |                          |              |            |                    
+       |    +---------------+-------------------------+   Scheduler|                    
+       |    |               |          |              |            |                    
+       |    |    ext3/...   |          |     TCP/UDP  |            |                    
+Linux  |    |               |  ZFS     |              |            |                    
+Kernel |    +---------------+          +---------------------------+                    
+       |    |               |          |              |            |                    
+       |    |    LVM        |          |      IP      |            |                    
+       |    |               |          |              |    Virtual |                    
+       |    +---------------++------------------------+    Memory  |                    
+       |    |        Block Device Int. |     Ethernet |            |                    
+       |    |                          |              |            |                    
+       v    +--------------------------+--------------+------------+                    
+            |                  DEVICE DRIVERS                      |                    
+            +------------------------------------------------------+                    
+</pre></div>
+<p>即使你打算使用监控产品，学习研究常见的系统指标（如 iostat，...）是值得的。
+监控产品通常也是使用相同的指标，从<code>/proc</code>读取。</p>
+<h2 id="analysis-and-tools">Analysis and Tools<a class="headerlink" href="#analysis-and-tools" title="Permanent link">¶</a></h2>
+<p>快速的浏览下工具，看看能做什么。</p>
+<p><img alt="analysis_tools" src="http://www.7rack.info/images/2014/05/analysis_tools.png"/></p>
+<p>图片来自<a href="http://www.slideshare.net/brendangregg/linux-performance-analysis-and-tools">linux-performance-analysis-and-tools</a></p>
+<h3 id="basic">Basic<a class="headerlink" href="#basic" title="Permanent link">¶</a></h3>
+<h4 id="uptime">uptime<a class="headerlink" href="#uptime" title="Permanent link">¶</a></h4>
+<p>显示的<em>load averages</em>，其他工具同样可以显示：</p>
+<div class="highlight"><pre><span class="c"># uptime </span>
+ 17:03:42 up <span class="m">14</span> days, 20:33,  <span class="m">1</span> user,  load average: 1.08, 0.42, 0.19
+</pre></div>
+<p>代表的是 1, 5, 15 分钟，系统平均要负责运行几个线程(任务)的意思。 
+通过这些值，可以看出负载是增加，稳定还是下降。
+若负载大于 CPU 个数，这可能意味着 CPUs 使用达到饱和，线程调度延迟，也可能是磁盘 I/O 因素。
+这只能作为一个线索，接着用其他工具调查。</p>
+<h4 id="top">top<a class="headerlink" href="#top" title="Permanent link">¶</a></h4>
+<p>系统范围每个进程的概要</p>
+<div class="highlight"><pre><span class="c"># top</span>
+top - 18:25:02 up <span class="m">14</span> days, 21:55,  <span class="m">1</span> user,  load average: 0.00, 0.03, 0.05
+Tasks: <span class="m">133</span> total,   <span class="m">1</span> running, <span class="m">132</span> sleeping,   <span class="m">0</span> stopped,   <span class="m">0</span> zombie
+Cpu<span class="o">(</span>s<span class="o">)</span>:  6.7%us,  4.4%sy,  0.0%ni, 84.6%id,  4.4%wa,  0.0%hi,  0.0%si,  0.0%st
+Mem:   2046584k total,  1862660k used,   183924k free,    61804k buffers
+Swap:  4128760k total,  1522144k used,  2606616k free,    87132k cached
+
+  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND                           
+<span class="m">55914</span> zenoss    <span class="m">20</span>   <span class="m">0</span>  874m 128m <span class="m">3584</span> S  1.7  6.4  16:08.78 runzope
+<span class="m">46351</span> mysql     <span class="m">20</span>   <span class="m">0</span> 1016m 105m <span class="m">4140</span> S  1.0  5.3  87:48.43 mysqld
+   <span class="m">16</span> root      <span class="m">20</span>   <span class="m">0</span>     <span class="m">0</span>    <span class="m">0</span>    <span class="m">0</span> S  0.7  0.0 244:47.86 kblockd/0
+<span class="o">[</span>...<span class="o">]</span>
+</pre></div>
+<p>每个Process对应：</p>
+<ul>
+<li>PID： process 的 ID</li>
+<li>USER：所属的使用者</li>
+<li>PR ：Priority 的简写，程序的优先运行顺序，越小越早被运行</li>
+<li>NI ：Nice 的简写，与 Priority 有关，也是越小越早被运行</li>
+<li>%CPU：CPU 的使用率</li>
+<li>%MEM：内存的使用率</li>
+<li>TIME+：CPU 使用时间的累加</li>
+</ul>
+<p>top 可能错过 short-lived 进程。<code>%CPU</code>高也可能是因为内存I/O，升级更快的 CPU 并没有帮助。</p>
+<h4 id="htop">htop<a class="headerlink" href="#htop" title="Permanent link">¶</a></h4>
+<p>是用于取代 Linux 下的 top ，功能比 top 强。
+htop 提供更方便、光标控制的界面来杀死进程。</p>
+<p><img alt="htop" src="http://www.7rack.info/images/2014/05/htop.png"/></p>
+<h4 id="mpstat">mpstat<a class="headerlink" href="#mpstat" title="Permanent link">¶</a></h4>
+<p>检查紧迫的进程，负载不均衡：</p>
+<div class="highlight"><pre><span class="c"># mpstat -P ALL 1</span>
+
+09:19:38 PM  CPU    %usr   %nice    %sys %iowait    %irq   %soft  %steal  %guest   %idle
+09:19:39 PM  all    1.00    0.00    1.00    0.00    0.00    0.00    0.00    0.00   98.00
+09:19:39 PM    <span class="m">0</span>    1.00    0.00    1.00    0.00    0.00    0.00    0.00    0.00   98.00
+</pre></div>
+<p>mpstat 是 Multiprocessor Statistic 的缩写，是实时的系统监视工具。
+报告与 CPU 的一些统计信息，可显示各个可用 CPU的状态。
+这些信息存放在<code>/proc/stat</code>文件中。</p>
+<h4 id="iostat">iostat<a class="headerlink" href="#iostat" title="Permanent link">¶</a></h4>
+<p>显示磁盘 I/O 统计，第一行显示的是自系统引导以来的数据汇总。</p>
+<div class="highlight"><pre><span class="c"># iostat -xkdz 1</span>
+Device:         rrqm/s   wrqm/s     r/s     w/s    rkB/s    wkB/s avgrq-sz avgqu-sz   await  svctm  %util
+sda               2.57   210.34   10.74  136.67    63.21  1388.06    19.69     0.46    3.11   0.83  12.22
+dm-0              0.00     0.00   11.25  345.44    54.91  1381.75     8.06     1.41    3.95   0.34  12.12
+dm-1              0.00     0.00    2.07    1.58     8.29     6.31     8.00     0.04   10.41   0.73   0.27
+
+Device:         rrqm/s   wrqm/s     r/s     w/s    rkB/s    wkB/s avgrq-sz avgqu-sz   await  svctm  %util
+sda               0.00    18.56    1.03   10.31     8.25   115.46    21.82     0.05    4.00   4.00   4.54
+dm-0              0.00     0.00    0.00   28.87     0.00   115.46     8.00     0.03    1.04   1.04   2.99
+</pre></div>
+<p>前面几列是输入工作负载，后面5列显示性能。</p>
+<ul>
+<li>avgrq-sz ：每次请求的扇区平均数。</li>
+<li>avgqu-sz ：监测时间间隔内平均队列长度</li>
+<li>await ：每个 IO 请求到完成的平均时间。值为<code>queuetime + svctim</code></li>
+<li>svctm ：监测时间间隔内每个 IO 请求完成的平均时间</li>
+<li>%util ：描述设备在服务于请求的时间百分比，值为<code>(r/s + w/s)*svctm/1000*100</code></li>
+</ul>
+<p><em>%util</em>：有效性取决于目标，多块磁盘组成的虚拟设备，可达到100%的利用率。
+详细的分析可参看 <a href="http://bhavin.directi.com/iostat-and-disk-utilization-monitoring-nirvana/">iostat and disk utilization monitoring nirvana</a>或者 man。</p>
+<h4 id="vmstat">vmstat<a class="headerlink" href="#vmstat" title="Permanent link">¶</a></h4>
+<p>显示虚拟内存统计数据，以及其它高级摘要：</p>
+<div class="highlight"><pre><span class="c"># vmstat 1</span>
+procs -----------memory---------- ---swap-- -----io---- --system-- -----cpu-----
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st
+ <span class="m">0</span>  <span class="m">0</span> <span class="m">1520376</span>  <span class="m">76000</span> <span class="m">157972</span> <span class="m">146784</span>    <span class="m">8</span>    <span class="m">6</span>    <span class="m">62</span>  <span class="m">1370</span>   <span class="m">26</span>    <span class="m">9</span>  <span class="m">4</span>  <span class="m">6</span> <span class="m">83</span>  <span class="m">8</span>  <span class="m">0</span> 
+ <span class="m">0</span>  <span class="m">0</span> <span class="m">1520376</span>  <span class="m">75992</span> <span class="m">157972</span> <span class="m">146812</span>    <span class="m">0</span>    <span class="m">0</span>     <span class="m">0</span>     <span class="m">0</span>  <span class="m">163</span>  <span class="m">291</span>  <span class="m">2</span>  <span class="m">1</span> <span class="m">97</span>  <span class="m">0</span>  <span class="m">0</span> 
+ <span class="m">0</span>  <span class="m">0</span> <span class="m">1520376</span>  <span class="m">75744</span> <span class="m">157972</span> <span class="m">146816</span>    <span class="m">0</span>    <span class="m">0</span>     <span class="m">0</span>   <span class="m">116</span>  <span class="m">200</span>  <span class="m">372</span>  <span class="m">2</span>  <span class="m">0</span> <span class="m">98</span>  <span class="m">0</span>  <span class="m">0</span> 
+</pre></div>
+<p>同样的第一行也显示自系统引导以来的数据。
+<code>r</code>= 可运行的线程总数，也包括正在运行的。
+如果该值一直大于系统中 CPU 个数，表示系统运行过慢。</p>
+<p>内存置换空间（swap）这列中：
+<code>so</code>表示内存不足而将没用到的程序写入到 swap 的容量，
+丢失了性能。</p>
+<h4 id="free">free<a class="headerlink" href="#free" title="Permanent link">¶</a></h4>
+<p>内存使用情况（默认 Kbytes）</p>
+<div class="highlight"><pre><span class="c"># free </span>
+             total       used       free     shared    buffers     cached
+Mem:       <span class="m">2046584</span>    <span class="m">1975648</span>      <span class="m">70936</span>          <span class="m">0</span>     <span class="m">158240</span>     148548
+-/+ buffers/cache:    <span class="m">1668860</span>     377724
+Swap:      <span class="m">4128760</span>    <span class="m">1520372</span>    2608388
+</pre></div>
+<ul>
+<li>
+<p>buffers：块设备的 I/O 缓存</p>
+</li>
+<li>
+<p>cached：虚拟页面缓存</p>
+</li>
+</ul>
+<h4 id="nicstat">nicstat<a class="headerlink" href="#nicstat" title="Permanent link">¶</a></h4>
+<p>网络流量统计工具</p>
+<div class="highlight"><pre><span class="c"># nicstat -z 1</span>
+    Time      Int   rKB/s   wKB/s   rPk/s   wPk/s    rAvs    wAvs %Util    Sat
+15:30:44       lo    4.01    4.01   13.96   13.96   294.5   294.5  0.00   0.00
+15:30:44     eth3   22.86    6.48   25.05    8.04   934.6   825.1  0.02   0.00
+    Time      Int   rKB/s   wKB/s   rPk/s   wPk/s    rAvs    wAvs %Util    Sat
+15:30:45       lo    4.03    4.03    9.98    9.98   413.1   413.1  0.00   0.00
+15:30:45     eth3    1.25    0.57   14.97    3.99   85.33   146.0  0.00   0.00
+</pre></div>
+<p>可关注下</p>
+<ul>
+<li>%Util 网卡利用率 </li>
+<li>Sat 网卡每秒的错误数 </li>
+</ul>
+<h4 id="dstat">dstat<a class="headerlink" href="#dstat" title="Permanent link">¶</a></h4>
+<p>一个全能的系统信息统计工具，比<code>vmstat</code>更好。</p>
+<p><img alt="dstat" src="http://www.7rack.info/images/2014/05/dstat.bmp"/></p>
+<p>图片来自<a href="http://www.slideshare.net/brendangregg/linux-performance-analysis-and-tools">linux-performance-analysis-and-tools</a></p>
+<h3 id="intermediate">Intermediate<a class="headerlink" href="#intermediate" title="Permanent link">¶</a></h3>
+<h4 id="sar">sar<a class="headerlink" href="#sar" title="Permanent link">¶</a></h4>
+<p>System Activity Reporter，例如报告分页数据 <code>-B</code>：</p>
+<div class="highlight"><pre><span class="nv">$ </span>sar -B 3
+Linux 3.11.0-20-generic <span class="o">(</span>precise<span class="o">)</span>   2014年05月16日   _x86_64_  <span class="o">(</span><span class="m">4</span> CPU<span class="o">)</span>
+
+22时08分28秒  pgpgin/s pgpgout/s   fault/s  majflt/s  pgfree/s pgscank/s pgscand/s pgsteal/s    %vmeff
+22时08分31秒      0.00      0.00     13.67      0.00     21.00      0.00      0.00      0.00      0.00
+22时08分34秒      0.00      0.00      8.00      0.00     14.67      0.00      0.00      0.00      0.00
+22时08分37秒      0.00      0.00     13.67      0.00     27.67      0.00      0.00      0.00      0.00
+</pre></div>
+<p>还有其他选项：</p>
+<ul>
+<li><code>-d</code>：block device statistics</li>
+<li><code>-q</code>: run queue statistics</li>
+</ul>
+<p>和其他工具（vmstat、iostat）显示的数据一样。</p>
+<h4 id="netstat">netstat<a class="headerlink" href="#netstat" title="Permanent link">¶</a></h4>
+<p>显示所有协议的数据使用<code>-s</code>：</p>
+<div class="highlight"><pre><span class="nv">$ </span>netstat -s
+<span class="o">[</span>...<span class="o">]</span>
+Tcp:
+<span class="m">127116</span> active connections openings
+<span class="m">165223</span> passive connection openings
+<span class="m">12904</span> failed connection attempts
+<span class="m">19873</span> connection resets received
+<span class="m">20</span> connections established
+<span class="m">662889209</span> segments received
+<span class="m">354923419</span> segments send out
+<span class="m">405146</span> segments retransmited
+<span class="m">6</span> bad segments received.
+<span class="m">26379</span> resets sent
+<span class="o">[</span>...<span class="o">]</span>
+TcpExt:
+<span class="m">2142</span> invalid SYN cookies received
+<span class="m">3350</span> resets received <span class="k">for</span> embryonic SYN_RECV sockets
+<span class="m">7460</span> packets pruned from receive queue because of socket buffer overrun
+<span class="m">2932</span> ICMP packets dropped because they were out-of-window
+<span class="m">96670</span> TCP sockets finished <span class="nb">time wait </span>in fast timer
+<span class="m">86</span> <span class="nb">time wait </span>sockets recycled by <span class="nb">time </span>stamp
+<span class="m">1007</span> packets rejects in established connections because of timestamp
+<span class="o">[</span>...many...<span class="o">]</span>
+</pre></div>
+<h4 id="pidstat">pidstat<a class="headerlink" href="#pidstat" title="Permanent link">¶</a></h4>
+<p>非常有用的进程分析：</p>
+<div class="highlight"><pre>pidstat -d 1
+Linux 2.6.32-431.11.2.el6.x86_64 <span class="o">(</span>l-test-xiangw-1<span class="o">)</span>  05/16/2014  _x86_64_  <span class="o">(</span><span class="m">1</span> CPU<span class="o">)</span>
+
+10:28:55 PM       PID   kB_rd/s   kB_wr/s kB_ccwr/s  Command
+10:28:56 PM      <span class="m">1756</span>      0.00      3.92      0.00  beam
+10:28:56 PM      <span class="m">4193</span>      0.00     39.22      0.00  nagios
+10:28:56 PM     <span class="m">46351</span>      0.00      3.92      0.00  mysqld
+10:28:56 PM     <span class="m">55992</span>      0.00     35.29      0.00  python
+</pre></div>
+<p>以上显示的 disk I/O</p>
+<h4 id="strace">strace<a class="headerlink" href="#strace" title="Permanent link">¶</a></h4>
+<p>系统调用 tracer：</p>
+<div class="highlight"><pre> strace -ttT -p 55914
+Process <span class="m">55914</span> attached - interrupt to quit
+22:44:10.802649 <span class="k">select</span><span class="o">(</span>11, <span class="o">[</span><span class="m">3</span> 10<span class="o">]</span>, <span class="o">[]</span>, <span class="o">[</span><span class="m">3</span> 10<span class="o">]</span>, <span class="o">{</span>20, 286066<span class="o">})</span> <span class="o">=</span> <span class="m">1</span> <span class="o">(</span>in <span class="o">[</span>3<span class="o">]</span>, left <span class="o">{</span>12, 587286<span class="o">})</span> &lt;7.698874&gt;
+22:44:18.501858 accept<span class="o">(</span>3, <span class="o">{</span><span class="nv">sa_family</span><span class="o">=</span>AF_INET, <span class="nv">sin_port</span><span class="o">=</span>htons<span class="o">(</span>19980<span class="o">)</span>, <span class="nv">sin_addr</span><span class="o">=</span>inet_addr<span class="o">(</span><span class="s2">"10.49.4.229"</span><span class="o">)}</span>, <span class="o">[</span>16<span class="o">])</span> <span class="o">=</span> <span class="m">25</span> &lt;0.000022&gt;
+22:44:18.502063 fcntl<span class="o">(</span>25, F_GETFL<span class="o">)</span>      <span class="o">=</span> 0x2 <span class="o">(</span>flags O_RDWR<span class="o">)</span> &lt;0.000011&gt;
+</pre></div>
+<ul>
+<li><code>-tt</code>：记录每个系统调用发生时的时间</li>
+<li><code>-T</code>：记录每个系统调用花费的时间（seconds）</li>
+<li><code>-p</code>：跟踪某个后台进程</li>
+<li>Useful：I/O 资源导致应用的高延迟，系统调用占用多数 I/O 资源。</li>
+<li><code>-c</code>：摘要</li>
+</ul>
+<div class="highlight"><pre><span class="c"># strace -c dd if=/dev/zero of=/dev/null  bs=512 count=1024k</span>
+<span class="o">[</span>...<span class="o">]</span>
+% <span class="nb">time     </span>seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+ 55.35    1.473574           <span class="m">1</span>   <span class="m">1048579</span>           write
+ 44.35    1.180639           <span class="m">1</span>   <span class="m">1048581</span>           <span class="nb">read</span>
+<span class="o">[</span>...<span class="o">]</span>
+</pre></div>
+<h4 id="tcpdump">tcpdump<a class="headerlink" href="#tcpdump" title="Permanent link">¶</a></h4>
+<p>嗅探网络数据包，转储为文件以便分析：</p>
+<div class="highlight"><pre><span class="c"># tcpdump -i eth0 -w /tmp/out.tcpdump</span>
+tcpdump: listening on eth0, link-type EN10MB <span class="o">(</span>Ethernet<span class="o">)</span>, capture size <span class="m">65535</span> bytes
+^C581 packets captured
+<span class="m">581</span> packets received by filter
+<span class="m">0</span> packets dropped by kernel
+
+<span class="c"># tcpdump -nr /tmp/out.tcpdump</span>
+<span class="o">[</span>...<span class="o">]</span>
+</pre></div>
+<ul>
+<li>可以研究奇怪的包转发延迟</li>
+<li>也可将抓包文件导入其他工具（wireshark）</li>
+</ul>
+<h4 id="blktrace">blktrace<a class="headerlink" href="#blktrace" title="Permanent link">¶</a></h4>
+<p>块设备 I/O 事件跟踪。</p>
+<div class="highlight"><pre><span class="c"># btrace /dev/mapper/vg_cloud-lv_root </span>
+253,0    <span class="m">0</span>        <span class="m">1</span>     0.000000000   <span class="m">413</span>  Q  WS <span class="m">4661960</span> + <span class="m">8</span> <span class="o">[</span>jbd2/dm-0-8<span class="o">]</span>
+253,0    <span class="m">0</span>        <span class="m">2</span>     0.000030599   <span class="m">413</span>  Q  WS <span class="m">4661968</span> + <span class="m">8</span> <span class="o">[</span>jbd2/dm-0-8<span class="o">]</span>
+253,0    <span class="m">0</span>        <span class="m">3</span>     0.000042099   <span class="m">413</span>  U   N <span class="o">[</span>jbd2/dm-0-8<span class="o">]</span> 0
+<span class="o">[</span>...<span class="o">]</span>
+</pre></div>
+<p>显示了磁盘的 I/O 事件，可用于调查 I/O 延迟异常值。</p>
+<h4 id="iotop">iotop<a class="headerlink" href="#iotop" title="Permanent link">¶</a></h4>
+<p>进程的磁盘 I/O：</p>
+<div class="highlight"><pre><span class="c"># iotop -bod5</span>
+Total DISK READ: 35.38 M/s <span class="p">|</span> Total DISK WRITE: 39.50 K/s
+  TID PRIO USER DISK READ DISK WRITE SWAPIN IO  COMMAND
+<span class="m">12824</span> be/4 root 35.35 M/s 0.00 B/s 0.00 % 80.59 % cksum ...
+  <span class="m">279</span> be/3 root 0.00 B/s 27.65 K/s 0.00 %  2.21 % <span class="o">[</span>jbd2/vda2-8<span class="o">]</span>
+<span class="m">12716</span> be/4 root 28.44 K/s 0.00 B/s 2.35 %  0.00 % sshd: root@pts/0
+<span class="m">12816</span> be/4 root  6.32 K/s 0.00 B/s 0.89 %  0.00 % python /usr/bin/iotop -bod5
+<span class="o">[</span>...<span class="o">]</span>
+</pre></div>
+<ul>
+<li>IO：等待 I/O 的时间线索（这个甚至比 pidstat’s Kbytes更有用）</li>
+<li>需要<code>CONFIG_TASK_IO_ACCOUNTING</code>或者启用类似的配置。</li>
+</ul>
+<h4 id="slabtop">slabtop<a class="headerlink" href="#slabtop" title="Permanent link">¶</a></h4>
+<p>实时的显示内核<code>slab</code>缓冲区的细节信息</p>
+<div class="highlight"><pre><span class="c"># slabtop -sc</span>
+Active / Total Objects <span class="o">(</span>% used<span class="o">)</span>    : <span class="m">305162</span> / <span class="m">397268</span> <span class="o">(</span>76.8%<span class="o">)</span>
+Active / Total Slabs <span class="o">(</span>% used<span class="o">)</span>      : <span class="m">20831</span> / <span class="m">20832</span> <span class="o">(</span>100.0%<span class="o">)</span>
+Active / Total Caches <span class="o">(</span>% used<span class="o">)</span>     : <span class="m">102</span> / <span class="m">182</span> <span class="o">(</span>56.0%<span class="o">)</span>
+Active / Total Size <span class="o">(</span>% used<span class="o">)</span>       : 75354.86K / 85579.39K <span class="o">(</span>88.1%<span class="o">)</span>
+Minimum / Average / Maximum Object : 0.02K / 0.21K / 4096.00K
+
+  OBJS ACTIVE  USE OBJ SIZE  SLABS OBJ/SLAB CACHE SIZE NAME                   
+ <span class="m">19880</span>  <span class="m">19795</span>  99%    0.99K   <span class="m">4970</span>   <span class="m">4</span>      19880K ext4_inode_cache
+ <span class="m">81820</span>  <span class="m">81740</span>  99%    0.19K   <span class="m">4091</span>   <span class="m">20</span>     16364K dentry
+<span class="m">117068</span>  <span class="m">55630</span>  47%    0.10K   <span class="m">3164</span>   <span class="m">37</span>     12656K buffer_head
+   <span class="m">181</span>    <span class="m">181</span> 100%   32.12K    <span class="m">181</span>   <span class="m">1</span>      11584K kmem_cache
+ <span class="m">16576</span>  <span class="m">14031</span>  84%    0.55K   <span class="m">2368</span>   <span class="m">7</span>       9472K radix_tree_node
+ <span class="m">19722</span>  <span class="m">19300</span>  97%    0.20K   <span class="m">1038</span>   <span class="m">19</span>      4152K vm_area_struct
+<span class="o">[</span>...<span class="o">]</span>
+</pre></div>
+<p>显示内核内存的消耗。</p>
+<h4 id="sysctl">sysctl<a class="headerlink" href="#sysctl" title="Permanent link">¶</a></h4>
+<div class="highlight"><pre><span class="c"># sysctl -a</span>
+<span class="o">[</span>...<span class="o">]</span>
+
+net.ipv4.route.redirect_number <span class="o">=</span> 9
+net.ipv4.route.redirect_silence <span class="o">=</span> 20480
+net.ipv4.route.error_cost <span class="o">=</span> 1000
+net.ipv4.route.error_burst <span class="o">=</span> 5000
+net.ipv4.route.gc_elasticity <span class="o">=</span> 8
+net.ipv4.route.mtu_expires <span class="o">=</span> 600
+net.ipv4.route.min_pmtu <span class="o">=</span> 552
+<span class="o">[</span>...<span class="o">]</span>
+</pre></div>
+<p>静态性能调优：检查系统配置。</p>
+<p>主要参看<a href="http://www.slideshare.net/brendangregg/linux-performance-analysis-and-tools">linux-performance-analysis-and-tools</a>。</p>
+            <section>
+    <p id="post-share-links">
+    Share on:
+    <a href="http://twitter.com/home?status=Linux%20%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90%E5%8F%8A%E5%B7%A5%E5%85%B7%20http%3A//www.7rack.info/linux-performance-analysis-and-tools.html" target="_blank" title="Share on Twitter">Twitter</a>
+    ❄
+    <a href="http://www.facebook.com/sharer/sharer.php?s=100&amp;p%5Burl%5D=http%3A//www.7rack.info/linux-performance-analysis-and-tools.html" target="_blank" title="Share on Facebook">Facebook</a>
+    ❄
+    <a href="https://plus.google.com/share?url=http%3A//www.7rack.info/linux-performance-analysis-and-tools.html" target="_blank" title="Share on Google Plus">Google+</a>
+    ❄
+    <a href="mailto:?subject=Linux%20%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90%E5%8F%8A%E5%B7%A5%E5%85%B7&amp;body=http%3A//www.7rack.info/linux-performance-analysis-and-tools.html" target="_blank" title="Share via Email">Email</a>
+    </p>
+</section>
+
+            <section>
+<div class="accordion" id="accordion2">
+    <div class="accordion-group">
+        <div class="accordion-heading">
+            <a class="accordion-toggle disqus-comment-count" data-toggle="collapse" data-parent="#accordion2"
+                href="http://www.7rack.info/linux-performance-analysis-and-tools.html#disqus_thread">
+                Comments
+            </a>
+        </div>
+        <div id="disqus_thread" class="accordion-body collapse">
+            <div class="accordion-inner">
+                <div class="comments">
+                    <div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_shortname = '7rack';
+        var disqus_identifier = 'http://www.7rack.info/linux-performance-analysis-and-tools.html';
+    var disqus_url = 'http://www.7rack.info/linux-performance-analysis-and-tools.html';
+
+    (function() {
+         var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+         dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+         (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+     })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</section>
+
+            <hr/>
+<section>
+    <h2>Related Posts</h2>
+<ul class="related-posts-list">
+<li><a href="http://www.7rack.info/show-conky.html" title="conky">conky</a></li>
+<li><a href="http://www.7rack.info/cool-cmd-shortcut-key.html" title="命令行加速">命令行加速</a></li>
+<li><a href="http://www.7rack.info/sysrq-key.html" title="SysRq键">SysRq键</a></li>
+<li><a href="http://www.7rack.info/install-gamit10-4-on-linux-kernel-3.html" title="linux kernel 3.*.*.*下安装gamit 10.4">linux kernel 3.*.*.*下安装gamit 10.4</a></li>
+<li><a href="http://www.7rack.info/issues-of-June.html" title="问题集锦(六月)">问题集锦(六月)</a></li>
+</ul>
+<hr />
+</section>
+            <aside>
+            <nav>
+            <ul class="articles-timeline">
+                <li class="previous-article">« <a href="http://www.7rack.info/5-Unsung-tools-of-devops.html" title="Previous: 5款经典的 DevOps 工具">5款经典的 DevOps 工具</a></li>
+                <li class="next-article"><a href="http://www.7rack.info/npc-installation.html" title="Next: NPC安装">NPC安装</a> »</li>
+            </ul>
+            </nav>
+            </aside>
+        </div>
+        <section>
+        <div class="span2" style="float:right;font-size:0.9em;">
+            <h4>Published</h4>
+            <time pubdate="pubdate" datetime="2014-05-13T11:04:17+08:00"> 5 13, 2014</time>
+            <h4>Category</h4>
+            <a class="category-link" href="http://www.7rack.info/categories.html#linux-ref">Linux</a>
+            <h4>Tags</h4>
+            <ul class="list-of-tags tags-in-article">
+                <li><a href="http://www.7rack.info/tags.html#blktrace-ref">blktrace
+                    <span>1</span>
+</a></li>
+                <li><a href="http://www.7rack.info/tags.html#dstat-ref">dstat
+                    <span>1</span>
+</a></li>
+                <li><a href="http://www.7rack.info/tags.html#htop-ref">htop
+                    <span>1</span>
+</a></li>
+                <li><a href="http://www.7rack.info/tags.html#iotop-ref">iotop
+                    <span>1</span>
+</a></li>
+                <li><a href="http://www.7rack.info/tags.html#linux-ref">Linux
+                    <span>10</span>
+</a></li>
+                <li><a href="http://www.7rack.info/tags.html#mpstat-ref">mpstat
+                    <span>1</span>
+</a></li>
+                <li><a href="http://www.7rack.info/tags.html#netstat-ref">netstat
+                    <span>1</span>
+</a></li>
+                <li><a href="http://www.7rack.info/tags.html#nicstat-ref">nicstat
+                    <span>1</span>
+</a></li>
+                <li><a href="http://www.7rack.info/tags.html#pidstat-ref">pidstat
+                    <span>1</span>
+</a></li>
+                <li><a href="http://www.7rack.info/tags.html#sar-ref">sar
+                    <span>1</span>
+</a></li>
+                <li><a href="http://www.7rack.info/tags.html#slabtop-ref">slabtop
+                    <span>1</span>
+</a></li>
+                <li><a href="http://www.7rack.info/tags.html#strace-ref">strace
+                    <span>1</span>
+</a></li>
+                <li><a href="http://www.7rack.info/tags.html#tcpdump-ref">tcpdump
+                    <span>1</span>
+</a></li>
+                <li><a href="http://www.7rack.info/tags.html#vmstat-ref">vmstat
+                    <span>1</span>
+</a></li>
+            </ul>
+<h4>Contact</h4>
+    <a href="mailto:vimxiang@gmail.com" title="My Email Address" class="sidebar-social-links" target="_blank">
+    <i class="fa fa-envelope sidebar-social-links"></i></a>
+    <a href="http://github.com/7rack" title="My Github Profile" class="sidebar-social-links" target="_blank">
+    <i class="fa fa-github sidebar-social-links"></i></a>
+        </div>
+        </section>
+</div>
+</article>
+                </div>
+                <div class="span1"></div>
+            </div>
+        </div>
+        <div id="push"></div>
+    </div>
+<footer>
+<div id="footer">
+    <ul class="footer-content">
+        <li class="elegant-power">Powered by <a href="http://getpelican.com/" title="Pelican Home Page">Pelican</a>. Theme: <a href="http://oncrashreboot.com/pelican-elegant" title="Theme Elegant Home Page">Elegant</a> by <a href="http://oncrashreboot.com" title="Talha Mansoor Home Page">Talha Mansoor</a></li>
+    </ul>
+</div>
+</footer>            <script src="http://code.jquery.com/jquery.min.js"></script>
+        <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+        <script>
+            function validateForm(query)
+            {
+                return (query.length > 0);
+            }
+        </script>
+
+            <script type="text/javascript">
+var disqus_shortname = '7rack';
+(function () {
+    var s = document.createElement('script'); s.async = true;
+    s.type = 'text/javascript';
+    s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+    (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+}());
+</script>
+<script  language="javascript" type="text/javascript">
+function uncollapse() {
+    if (window.location.hash.match(/^#comment-\d+$/)) {
+        $('#disqus_thread').collapse('show');
+    }
+}
+</script>
+<script type="text/javascript" language="JavaScript">
+uncollapse();
+window.onhashchange=function(){
+    if (window.location.hash.match(/^#comment-\d+$/))
+        window.location.reload(true);
+}
+</script>
+<script>
+$('#disqus_thread').on('shown', function () {
+    var link = document.getElementsByClassName('accordion-toggle');
+    var old_innerHTML = link[0].innerHTML;
+    $(link[0]).fadeOut(500, function() {
+        $(this).text('Click here to hide comments').fadeIn(500);
+    });
+    $('#disqus_thread').on('hidden', function () {
+        $(link[0]).fadeOut(500, function() {
+            $(this).text(old_innerHTML).fadeIn(500);
+        });
+    })
+})
+</script>
+
+
+    </body>
+    <!-- Theme: Elegant built for Pelican
+    License : http://oncrashreboot.com/pelican-elegant -->
+</html>

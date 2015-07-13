@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en-US">
+    <head>
+        <meta charset="utf-8"> 
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="author" content="7rack" />
+        <meta name="copyright" content="7rack" />
+
+        <meta property="og:type" content="article" />
+        <meta name="twitter:card" content="summary">
+
+<meta name="keywords" content="Devops, RANCID, Cacti, lldpd, IPerf, mussh, Devops, " />
+
+<meta property="og:title" content="5款经典的 DevOps 工具 "/>
+<meta property="og:url" content="http://www.7rack.info/5-Unsung-tools-of-devops.html" />
+<meta property="og:description" content="" />
+<meta property="og:site_name" content="轨迹" />
+<meta property="og:article:author" content="7rack" />
+<meta property="og:article:published_time" content="2014-05-10T09:34:21+08:00" />
+<meta name="twitter:title" content="5款经典的 DevOps 工具 ">
+<meta name="twitter:description" content="">
+
+        <title>5款经典的 DevOps 工具  · 轨迹
+</title>
+        <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
+        <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css" rel="stylesheet">
+<link rel="stylesheet" href="http://www.7rack.info/theme/css/style.min.css?7aeecf36">
+<script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+     (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+     m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+     })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-39673245-1', 'auto');
+    ga('send', 'pageview');
+</script>
+    </head>
+    <body>
+        <div id="content-sans-footer">
+        <div class="navbar navbar-static-top">
+            <div class="navbar-inner">
+                <div class="container-fluid">
+                    <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </a>
+                    <a class="brand" href="http://www.7rack.info/"><span class=site-name>轨迹</span></a>
+                    <div class="nav-collapse collapse">
+                        <ul class="nav pull-right top-menu">
+                            <li ><a href="http://www.7rack.info">Home</a></li>
+                            <li ><a href="http://www.7rack.info/pages/about-me.html">About</a></li>
+                            <li ><a href="http://www.7rack.info/categories.html">Categories</a></li>
+                            <li ><a href="http://www.7rack.info/tags.html">Tags</a></li>
+                            <li ><a href="http://www.7rack.info/archives.html">Archives</a></li>
+                            <li><form class="navbar-search" action="http://www.7rack.info/search.html" onsubmit="return validateForm(this.elements['q'].value);"> <input type="text" class="search-query" placeholder="Search" name="q" id="tipue_search_input"></form></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid">
+            <div class="row-fluid">
+                <div class="span1"></div>
+                <div class="span10">
+<article>
+<div class="row-fluid">
+    <header class="page-header span10 offset2">
+    <h1><a href="http://www.7rack.info/5-Unsung-tools-of-devops.html"> 5款经典的 DevOps 工具  </a></h1>
+    </header>
+</div>
+
+<div class="row-fluid">
+    <div class="span2 table-of-content">
+        <nav>
+        <h4>Contents</h4>
+        <div class="toc">
+<ul>
+<li><a href="#rancid">RANCID</a></li>
+<li><a href="#cacti">Cacti</a></li>
+<li><a href="#lldpd">lldpd</a></li>
+<li><a href="#iperf">IPerf</a></li>
+<li><a href="#multihost-ssh-wrapper">MUltihost SSH Wrapper</a></li>
+<li><a href="#conclusion">Conclusion</a></li>
+</ul>
+</div>
+        </nav>
+    </div>
+    <div class="span8 article-content">
+
+            
+            
+<p><strong>翻译自</strong><a href="http://programming.oreilly.com/2013/11/5-unsung-tools-of-devops.html">《5 Unsung Tools of DevOps》</a>，可在 oreilly 网站免费下载该电子书。</p>
+<p>工具对提高工作效率起着至关重要的作用。
+在技术世界不断变化的今天，我们倾向于关注最新的和最好的解决方案，而忽视可用的简单工具。
+不断改进的工具是 DevOps 发展的一个重要方面，但进步并不意味着替代。</p>
+<p>这里有我几乎每天都用的5个工具。
+它们提供对环境的监控和控制，然而只需最小化安装和配置。
+它们不是什么浮华的工具，但它们经过了时间的考验，且有效的工作。</p>
+<blockquote>
+<p>It has long been an axiom of mine that
+the little things are infinitely the most
+important.<br/>
+--Sir Arthur Conan Doyle</p>
+</blockquote>
+<h2 id="rancid">RANCID<a class="headerlink" href="#rancid" title="Permanent link">¶</a></h2>
+<p>像 Puppet 和 Chef 的配置管理（CM）工具能保持对系统进行有效的控制，但是你的基础设施怎么办？
+ <a href="http://www.shrubbery.net/rancid/">Really Awesome New Cisco confIg Differ</a>（RANCID）是解决这个问题的第一步。本质上， RANCID 是一套自动在版本控制系统中保留你的配置。如果你有在任何级别的物理基础架构，你应该像服务器的 CM 解决方案一样管理它。</p>
+<p>这听起来不错，但是 RANCID 能解决什么实际问题呢？
+ 核心应用是为那些粘合服务器到一起的设备创建一条软件配置和硬件信息的审查轨迹。
+ 你的交换机、路由器和负载均衡器的配置也许不会像你 Rails 应用中的代码频繁修改，但随着时间的过去确实会改变。
+ 改变的速率经常与你的环境是否改变或者扩展有关。</p>
+<p>审核（Auditing）是自动化过程中伟大的第一步。
+ 你必须清楚你去哪里得到和究竟去向哪里。
+ RANCID 对 Cisco 、Juniper 、F5 和其它厂家的设备是立即可用的。
+ 审计进程需要 RANCID 的基本安装和在想要的监控设备上配置一个只读用户。
+ 当前的配置就会定期自动地拉取并提交到版本控制系统中，发送一封详细的配置变更邮件。</p>
+<p>所以现在你已经准备试试 RANCID ，但从何而起呢？
+ 如果你的是 Subversion ，你可以抓取<strong>the latest tarball</strong>,然后按照<strong>Getting Started</strong>的指引。
+ Git 用户可以抓取 RANCID 带<strong> patched to add git functionality</strong>的fork。
+ 虽然 git 不是被 RANCID 的维护者原生支持，我更喜欢 git ，所以选用上面的fork。</p>
+<p>一旦你安装了 RANCID，在<code>/etc/rancid/rancid.conf</code>（或者其它的安装位置）有几处基本的配置项需要设置。</p>
+<p><strong>rancid.conf</strong></p>
+<div class="highlight"><pre>RCSSYS=git
+FILTER_PWDS=YES
+LIST_OF_GROUPS="pdx slc ord"
+</pre></div>
+<p>配置 RANCID 去拉取配置需要用户名和密码以连接每个设备，根据需要使用 hostname 匹配。
+RANCID 支持通过 telnet 和 ssh 来连接设备。
+我相信不用多说，不要使用 telnet ，甚至在设备上启用它！
+有些设备支持 <em>key-based</em>授权（像 Juniper 和 F5）同时无需密码。
+既然这样，RANCID 将用 <strong>rancid</strong> 用户下的 <em>ssh key</em>（如果已经配置），同时配置 RANCID 通过ssh连接。
+否则你需在<code>.cloginrc</code>文件中配置密码，该文件在 <strong>rancid</strong> 用户目录下。这里是一个例子：</p>
+<p><strong>~/.cloginrc</strong></p>
+<div class="highlight"><pre># We only use SSH
+add method * {ssh}
+
+# Wildcard for all devices
+add password  *.example.com  LoginPassword  EnablePassword
+add password  router.example.com  OtherPass  AndAnotherPass
+</pre></div>
+<p>最后你需要配置设备属于哪个 <em>group</em> 。
+你需为每个组创建一个目录，目录名和组名相同，且每个都包含一个配置文件。
+RANCID 在此显示它的一些继承物，如同此配置文件叫<code>router.db</code>。这不限于路由器，不过这也不是数据库而是一个简单文本文件。
+文件中的每一行以<code>hostname:type:status</code>代表一个设备,其中<em>type</em>是支持的设备列表中的设备类型，<em>status</em>是 up 后者 down 。
+被标记为 <strong>down</strong>的设备不会询问其配置，但会一致保存在版本控制系统中。这里是一个例子：</p>
+<p><strong>~/pdx/router.db</strong></p>
+<div class="highlight"><pre>switch.example.com:cisco:up
+router.example.com:juniper:up
+balance.example.com:f5:up
+</pre></div>
+<p>现在，假如你已经在上面的设备配置了 <em>RANCID</em> 用户，作为 <em>RANCID</em> 用户，你可以手动运行<code>rancid-run</code>来收集所有的配置。
+一旦设备被查询，所有的配置将存放在<code>~/pdx/configs/switch.example.com</code>，而且一个<em>diff</em>将被 email 到 <em>rancid-pdx</em>，这与你之前的别名一致。</p>
+<p>唷（?_?）现在你可以在运行 RANCID 系统中安全轻松的知道所有已设置设备的配置和硬件信息。
+这也许已经足够，但有本地的 git 仓库去提交或许更好。这里有简单的设置。</p>
+<ul>
+<li>Set up a remote for the git repo</li>
+</ul>
+<div class="highlight"><pre><span class="nv">$ </span>git remote add upstream &lt;git url&gt;
+</pre></div>
+<ul>
+<li>Create the following file at ~/.git/hooks/post-commit</li>
+</ul>
+<div class="highlight"><pre><span class="c">#!/bin/sh</span>
+<span class="c"># Push the local repo to my upstream on commit</span>
+git push upstream
+</pre></div>
+<p>现在你已经详细的了解设置 RANCID ，而且去跟踪你的配置，去hack it吧！
+带着控制设备的目标，你可以扩展当前的 CM 解决方案以达到网络机架的深度。</p>
+<p>更详细的信息，去检查http://www.shrubbery.net/rancid/网站，并看看Shrubbery Networks公司其他可用的工具。</p>
+<h2 id="cacti">Cacti<a class="headerlink" href="#cacti" title="Permanent link">¶</a></h2>
+<p>我想 Cacti 是 Graphite 的鼻祖。
+它是基于 round robin 数据库的统计画图工具，以使用 SNMP（Simple Network Management Protocol）的网络设备为目标，你可在 http://www.cacti.net/ 找到。
+它并不流行也不写在节点上，那为什么要考虑它呢？
+Cacti 是很适合当你需要轮询设备以收集信息，而不是设备上报数据。配置集中在运行的服务器上，更多的是<em>  it Just Works</em>。</p>
+<p>Cacti 提供 Web UI，这样你可以快速上手，包含了 user、device 和 graph management。
+后端，Cacti 作用<strong>RRDTool</strong>去存储已设置设备的时间序列数据。
+RRD 可以方便的存储设定时间段的数据，文件也不会增大。
+Cacti 通过存储数据到多重 round robin 档案（RRAs）来处理长时间数据保存。
+RRAs 定义了越过指定长时间（Timespan）存储多少个数据点（Rows），同时如何聚合数据点（Steps）。<em>Steps</em>是此 RRA 一个数据点对数据点个数的平均指数。</p>
+<p><a href="http://www.7rack.info/images/2014/05/RRAofcacti.bmp"><img alt="RRAofcacti" src="http://www.7rack.info/images/2014/05/RRAofcacti.bmp"/></a></p>
+<p>当然你也可以调整默认值像创建自己的 RRAs ,如18 months、2 years 或者其他你想要的 timespan。
+这里值得注意的重要项是 <em>Steps</em> 和 <em>Rows</em>。step 的尺寸定义了在RRA中多少条数据点合并为一个数据点。
+Timespan 定义了从数据源每多少秒画一次图。</p>
+<p>Cacti 一个最大的优点是基于模版的配置，允许很赞的定制。
+开始有各种设备的模版叫<strong>Host Templates</strong>。Host Template 定义了与某种设备关联的 Graph Templates。
+例如有一个内建的  Cisco Router Host Template，你分配这个模版给某个设备，Cacti 知道哪些图形模板是相关的。
+这相比你必须整理整个图形模版列表有压倒性优势！</p>
+<p>那么 Cacti 是如何知道你的交换机有多少端口呢？答案很简单，Cacti 使用 SNMP 或者其他自定义 Data Query 询问设备。
+SNMP 越来越老，但它仍是获得结构化数据简单快捷的方法，这正是<strong>Data Queries</strong>发挥作用。
+像Data Query 中<strong>SNMP - Interface Statistics</strong>，有结果的索引值并以此遍历结果和收集相关信息。
+如果你有数据不适合通过 SNMP，Cacti 支持在服务器上运行自定义脚本来收集任何需要的信息。</p>
+<p>通过一个询问很多问题的简单 web 表单来完成配置一个新设备，但它可以归结为<em>Description</em>、<em>Hostname</em>和<em>Host Template</em>。
+大多数其他设置可以继承系统默认值，比如 timeouts 和 SNMP 连接详细。
+当在远程主机上配置 SNMP 时，务必要改变<em>community</em>，而不是使用默认的“public”。
+另外强烈推荐限制可以查询 SNMP 数据的主机甚至限制这些主机可以查看的数据。</p>
+<p>一旦你完成创建主机，将会被重定向到主机详细同时可以选择创建图形。单击链接到与设备相关 Graph Templates 列表。
+简单的勾选你想创建的图形旁边的复选框，然后点击 Create。</p>
+<p><a href="http://www.7rack.info/images/2014/05/graph_templates.bmp"><img alt="graph_templates" src="http://www.7rack.info/images/2014/05/graph_templates.bmp"/></a></p>
+<p>在接下来的5分钟（默认的轮询间隔），你应该开始看到刚为设备添加的图形数据。
+这里有个低利用率交换机端口的<em>Hourly</em>图形例子。
+由于默认的轮询周期是5分钟（也许在今天的标准有点长），会出现阶梯。
+绿色区域代表传入流量，蓝色线条代表出站。这个图形模版也包括其95%（没有显示在图上）作为常见的网络流量计费方式。</p>
+<p><a href="http://www.7rack.info/images/2014/05/cacti_traffic.bmp"><img alt="cacti_traffic" src="http://www.7rack.info/images/2014/05/cacti_traffic.bmp"/></a></p>
+<p>你可以轻易的查看特定主机的图形，但这不是查看数据最有效的方法。
+Cacti 的另一个特点是 Graph Trees。
+Graph Trees 允许你创建类似文件夹的结构去排列和查看图形。
+想一次性查看所有树莓派的网络吞吐量？没问题！
+我们在 Default Tree 下创建<em>Header</em>类型的 Switch，并只包含我们关心的图形：</p>
+<p><a href="http://www.7rack.info/images/2014/05/tree_items.bmp"><img alt="tree_items" src="http://www.7rack.info/images/2014/05/tree_items.bmp"/></a></p>
+<p>在 Cacti 下从<strong>Console</strong>标签移到<strong>Graph</strong>视图，查看刚刚的成果。
+这两种模式把配置和常规使用区分开来，并稍微改变界面。
+不用担心，这就像点击一个页面上的标签来回切换。</p>
+<p><a href="http://www.7rack.info/images/2014/05/graph_view.bmp"><img alt="graph_view" src="http://www.7rack.info/images/2014/05/graph_view.bmp"/></a></p>
+<p>这是 Cacti 的<em>Graphs</em>视图，左侧包含<em>Graph Tree</em>，顶部有快速过滤器，图形结果在主体部分显示。
+这里也显示了 Cacti 有些年头了。
+虽然页面主要是动态内容，但没有使用 AjAX，所以页面是通过 meta 标签刷新，
+而且在与图形直接交互时，你不能改变时间范围查看。</p>
+<p>如果你足够关注，会注意到上图是 Hourly RRA 中最近一个小时的数据。
+如果你想查看特定图形的所有时间阶段，只用点击它，将会进入该数据的整个存储历史中。
+这对识别随着时间推移的趋势非常有用，能让你规划未来的发展。</p>
+<h2 id="lldpd">lldpd<a class="headerlink" href="#lldpd" title="Permanent link">¶</a></h2>
+<p>链路层发现协议（LLDP）是一个你可能从未听过，未充分使用而非常有用的网络协议。
+曾经因为过时的文档或者乱麻样的布线，而拔错服务器网线？是的，我干过...
+但现在你可以自信确切的知道服务器插入的端口！
+你只需要在交换机上启用 LLDP，同时安装 lldpd。</p>
+<p>我们应该注意到，多年来多个网络设备供应商实现了其他的链路层协议。
+LLDP 是以 IEEE 802.1AB 标准定义的厂商中立的规范。
+现在不同厂商设备间终于可以交换信息，这重要的一步，让网络工程师们兴奋。
+现在是时候将这个消息呈现给广大受众。</p>
+<p>虽然 LLDP 的内部工作机理远远超出了本文的范围，基本使用还是很简单。
+一个设备可以是服务器、交换机、路由器或者其他设备，每隔一定时间向所有已连接网络接口发送信息。
+这些信息通常包含系统名称、发送数据接口的名称和管理地址 IP。</p>
+<p>然后接受设备收集数据，添加数据传入的接口，并将其存储一定的时间。
+数据交换只发生在以太网直连设备间，所以你可以确定特定接口上的邻居。</p>
+<div class="highlight"><pre>Capability Codes: R - Router, T - Trans Bridge,
+                  S - Switch, H - Host, I - IGMP, r - Repeater
+Device ID   Local Intrfce   Capability  Platform     Port ID
+rpi-1       Fas 0/2         H           Linux       eth0
+rpi-2       Fas 0/1         H           Linux       eth0
+</pre></div>
+<p>这是个老式 Cisco 交换机的例子，连接有2个 Linux 主机。
+如果需要断开 rpi-1 设备的 eth0 口，就知道是插在交换机的 FastEthernet 0/2 端口。
+我还可以分辨出 rpi-2 不是交换机，因为在<em>Capability</em>列标记为<strong>H</strong>，表示是主机。</p>
+<p>在 Linux 下有 LLDP 少数的实现：<a href="http://open-lldp.org/">Open-LLDP</a>、<a href="http://www.blinkenlights.nl/software/ladvd/">ladvd</a> 和 <a href="http://vincentbernat.github.io/lldpd/">lldpd</a>。
+我更喜欢 lldpd 的配置简单，它也可以和其他像 Cisco Discovery Protocol 专有发现协议对话，客户端工具有多种输出格式。</p>
+<p>取决于你正在使用的 Linux 发行版，也许没有可用的 lldpd 软件包，但遵从标准的编译安装模式。
+软件包安装完成后，确实不用过多的配置。
+例如使用 <a href="http://www.raspbian.org/">Rasbian</a> 包安装，你只需运行守护进程。
+使用 CDP（Cisco Discovery Protocol）需要稍加改动配置，如下：</p>
+<p><strong>/etc/defaults/lldpd</strong></p>
+<div class="highlight"><pre># Start SNMP subagent and enable CDP
+DAEMON_ARGS="-x -c"
+</pre></div>
+<p>一旦 lldpd 安装完成并运行，只需几秒钟从临近设备传入数据。
+使用<code>lldpctl</code>命令查看当前 LLDP 信息，默认将打印出一些详细信息。
+在下面的例子中，你可以看到实际在采用 CDP 和老的 Cisco 2924 交换机通讯：</p>
+<div class="highlight"><pre>-----------------------------------------------------------
+LLDP neighbors:
+-----------------------------------------------------------
+Interface: eth0, via: CDPv2, RID: 4, Time: 8 days, 00:58:39
+  Chassis:
+    ChassisID: local switch.example.com
+    SysName: switch.example.com
+    SysDescr: cisco WS-C2924-XL
+    MgmtIP: 192.168.1.2
+    Capability: Bridge, on
+  Port:
+    PortID: ifname FastEthernet0/2
+    PortDescr: FastEthernet0/2
+    VLAN: 1, pvid: yes VLAN #1
+</pre></div>
+<p>到目前为止这是人们可以解析的所有可用信息，但这不是我想致力于的规模。
+<code>lldpctl</code>帮了我们大忙，提供 key-value 和 XML 多种输出格式。
+这里有个同样的<em>key-value</em>的输出格式来对照：</p>
+<div class="highlight"><pre><span class="nv">$ </span>lldpctl -f keyvalue
+lldp.eth0.via<span class="o">=</span>CDPv2
+lldp.eth0.rid<span class="o">=</span>4
+lldp.eth0.age<span class="o">=</span><span class="m">8</span> days, 01:00:23
+lldp.eth0.chassis.local<span class="o">=</span>switch.example.com
+lldp.eth0.chassis.name<span class="o">=</span>switch.example.com
+lldp.eth0.chassis.descr<span class="o">=</span>cisco WS-C2924-XL
+lldp.eth0.chassis.mgmt-ip<span class="o">=</span>192.168.1.2
+lldp.eth0.chassis.Bridge.enabled<span class="o">=</span>on
+lldp.eth0.port.ifname<span class="o">=</span>FastEthernet0/2
+lldp.eth0.port.descr<span class="o">=</span>FastEthernet0/2
+lldp.eth0.vlan.vlan-id<span class="o">=</span>1
+lldp.eth0.vlan.pvid<span class="o">=</span>yes
+lldp.eth0.vlan<span class="o">=</span>VLAN <span class="c">#1</span>
+</pre></div>
+<p>现在有了服务器是如何连接到世界其他角落的信息，且是易于分析的格式，稍微加工可以传递给配置管理软件。
+这变得很重要的原因之一是它允许自动发现服务器和直连网络设备之间的父子关系。
+通过简单的包装（假如你是 <a href="https://puppetlabs.com/">Puppet</a> 用户），获得所连接交换机（父节点） hostname。
+现在当动态生成你的监控配置，就可以传递你已连接到 Switch.example.com 的信息。</p>
+<h2 id="iperf">IPerf<a class="headerlink" href="#iperf" title="Permanent link">¶</a></h2>
+<p>比特随着不断变化的不对称路径从一个地方移到另一个地方，网络有时是一个奇怪的地方。
+有时这将导致服务器之间非常不同的吞吐量性能，否则似乎是相同的。
+在运行一些常见工具像<code>traceroute</code>或者<code>curl</code>，你任然无法重现问题。</p>
+<p>使用<em><a href="http://iperf.sourceforge.net/">Iperf</a></em>吧，一个网络测试工具。
+Iperf 被设计以客户端/服务端的方式运行，测量两点间的吞吐量。
+它同时支持 UDP 和 TCP，可以在每个端点用一个命令进行双向或单向测试。
+Iperf 的威力在于非常有效的使网络连接饱和。对于 TCP，它报告整体的吞吐量。
+对于 UDP ，你可以调整数据包大小，同时报告中包括吞吐量、丢包、抖动。</p>
+<p>安装简单，在主流的 Linux 发行版中已经有安装包，同时支持跨平台编译，Windows 下也有第三方提供的二进制文件。
+为运行 iperf，你需要配置防火墙允许2个端点之间的连接，默认的 TCP 和 UDP 服务端口是5001。
+同时需要在连接的两端运行 iperf 来测试，iperf 可以运行在服务端或客户端模式下，如下面的例子：</p>
+<p><strong>TCP Server Mode</strong></p>
+<div class="highlight"><pre><span class="nv">$ </span>iperf -s
+-----------------------------------------------------------
+Server listening on TCP port 5001
+TCP window size: 85.3 KByte <span class="o">(</span>default<span class="o">)</span>
+-----------------------------------------------------------
+<span class="o">[</span> 4<span class="o">]</span> <span class="nb">local </span>192.168.1.101 port <span class="m">5001</span> connected
+    with 192.168.1.100 port 43697
+<span class="o">[</span> ID<span class="o">]</span> Interval Transfer Bandwidth
+<span class="o">[</span> 4<span class="o">]</span> 0.0-10.1 sec <span class="m">114</span> MBytes 94.1 Mbits/sec
+</pre></div>
+<p><strong>TCP Client Mode</strong></p>
+<div class="highlight"><pre><span class="nv">$ </span>iperf -c 192.168.1.101
+-----------------------------------------------------------
+Client connecting to 192.168.1.101, TCP port 5001
+TCP window size: 22.9 KByte <span class="o">(</span>default<span class="o">)</span>
+-----------------------------------------------------------
+<span class="o">[</span> 3<span class="o">]</span> <span class="nb">local </span>192.168.1.100 port <span class="m">43697</span> connected
+    with 192.168.1.101 port 5001
+<span class="o">[</span> ID<span class="o">]</span> Interval Transfer Bandwidth
+<span class="o">[</span> 3<span class="o">]</span> 0.0-10.0 sec <span class="m">114</span> MBytes 95.0 Mbits/sec
+</pre></div>
+<p>用 iperf 执行一个初始的 TCP 测试需运行服务，然后在客户端连接它。
+在上面的例子中，树莓派作为服务端运行，同时另一个系统向它发送流量。
+最终的结果是衡量从客户端到服务端完整的吞吐量。
+你可以用<code>-r</code>标志每次运行一个来进行双向测试，或者传递<code>-d</code>标志到客户端同时进行双向测试。
+选用哪种方法取决于你预期的工作负载，但通常当系统运行在相同的硬件上，独立测试的统计结果应该类似。</p>
+<p><strong>UDP Server Mod</strong></p>
+<div class="highlight"><pre><span class="nv">$ </span>iperf -s -u
+-----------------------------------------------------------
+Server listening on UDP port 5001
+Receiving <span class="m">1470</span> byte datagrams
+UDP buffer size: <span class="m">160</span> KByte <span class="o">(</span>default<span class="o">)</span>
+-----------------------------------------------------------
+<span class="o">[</span> 3<span class="o">]</span> <span class="nb">local </span>192.168.1.101 port <span class="m">5001</span> connected
+     with 192.168.1.100 port 55272
+<span class="o">[</span> ID<span class="o">]</span> Interval      Transfer  Bandwidth  Jitter    Lost/Total
+<span class="o">[</span> 3<span class="o">]</span>  0.0-10.0 sec  <span class="m">114</span> MB    95.7 Mbps  0.158 ms     0/81482
+<span class="o">[</span> 3<span class="o">]</span>  0.0-10.0 sec  <span class="m">1</span> datagrams received out-of-order
+</pre></div>
+<p><strong>UDP Client Mode</strong></p>
+<div class="highlight"><pre><span class="nv">$ </span>iperf -u -c 192.168.1.101
+-----------------------------------------------------------
+Client connecting to 192.168.1.101, UDP port 5001
+Sending <span class="m">1470</span> byte datagrams
+UDP buffer size: <span class="m">208</span> KByte <span class="o">(</span>default<span class="o">)</span>
+-----------------------------------------------------------
+<span class="o">[</span> 3<span class="o">]</span> <span class="nb">local </span>192.168.1.100 port <span class="m">55272</span> connected
+    with 192.168.1.101 port 5001
+<span class="o">[</span> ID<span class="o">]</span> Interval      Transfer  Bandwidth
+<span class="o">[</span> 3<span class="o">]</span>  0.0-10.0 sec  <span class="m">114</span> MB    95.8 Mbps
+<span class="o">[</span> 3<span class="o">]</span> Sent <span class="m">81483</span> datagrams
+<span class="o">[</span> 3<span class="o">]</span> Server Report:
+<span class="o">[</span> 3<span class="o">]</span>  0.0-10.0 sec  <span class="m">114</span> MB    95.7 Mbps  0.158 ms     0/81482
+<span class="o">[</span> 3<span class="o">]</span>  0.0-10.0 sec  <span class="m">1</span> datagrams received out-of-order
+</pre></div>
+<p>由于 UDP 是无状态连接，它不能像 TCP 知道在网络中到达多远。
+所以 iperf 选择理性默认的发送 UDP 流量，默认目标1Mbps的吞吐量。
+之前的例子则通过<code>-b</code>标志指定目标带宽为100Mbps。</p>
+<p>你可能也注意到客户端的 UDP 视图中也显示了 Server Report。
+这是必须的，因为 UDP 是没任何保证，客户端可以整天开心的发送数据包到服务端，然后被丢弃。
+注意客户端和服务端的 UDP 比较结果应该是一致的。</p>
+<h2 id="multihost-ssh-wrapper">MUltihost SSH Wrapper<a class="headerlink" href="#multihost-ssh-wrapper" title="Permanent link">¶</a></h2>
+<p>MUltihost SSH Wrapper，或者叫<em>mussh</em>，是今天看来任然好用的古老工具。
+核心上，mussh 仅是个封装了 SSH 的 shell 脚本，允许你跨多台主机串行或并行的执行相同命令。
+这个脚本填补了一个跨分布式系统一次性运行命令的缺口，直到最近很多 CM 工具的出现被忽略。</p>
+<p>已经有了配置管理工具，为什么我可能想做以外的事情呢？
+你应该用“大锤子”执行系统状态，虽然这是事实，但有时你仅需要一次或者不经常执行任务。</p>
+<p>以 NTP 时钟偏差为例。
+我最近遇到个问题，服务在硬件升级后网络排队时间戏剧性地增加了。
+NTP 配置和服务状态都通过 CM 执行，所以我知道它在运行。
+我想核实所有系统时钟都被同步，而且不想每个都手动远程 ssh 上去。</p>
+<div class="highlight"><pre><span class="nv">$ </span>mussh -l pi -m <span class="m">2</span> -h rpi-1 rpi-2 -c <span class="s1">'sudo ntpdate -u ntp.home'</span>
+pi@rpi-1: ntpdate: adjust <span class="nb">time </span>server ntp.home offset 0.0151 sec
+pi@rpi-2: ntpdate: adjust <span class="nb">time </span>server ntp.home offset 0.0006 sec
+</pre></div>
+<p>哇，这是长命令。所以来分解下吧。</p>
+<p><strong>Sync NTP across multiple hosts concurrently</strong></p>
+<div class="highlight"><pre><span class="nv">$ </span>mussh <span class="se">\</span>
+    -l pi <span class="se">\ </span>         <span class="c"># Set the ssh username</span>
+    -m <span class="m">2</span> <span class="se">\ </span>          <span class="c"># Run on two hosts concurrently</span>
+    -h rpi-1 rpi-2 <span class="se">\ </span><span class="c"># Hostnames for the command</span>
+    -c ‘sudo ntpdate -u ntp.home’ <span class="c"># Sync ntp with this peer</span>
+</pre></div>
+<p>输出结果是<code>hostname: output of the command</code>这个格式，这在你期望单行运行命令时是有帮助的。
+如果你预计每个主机多行输出，你可以通过传递<code>-b</code>选项给 mussh 输出缓冲区,否则所有系统的输出显示交织在一起。</p>
+<p>在这个例子中我们使用了3个假设。
+首先，在你的电脑和主机列表之间使用基于密钥的 ssh 认证（你在使用密钥对吧？）。
+你还需要运行<code>key-agent</code>，使得不用每台主机都提示输入私钥。
+最后，这个例子假设用户<em>pi</em>无需输入密码就可执行<code>sudo ntpdate</code>，
+这个适用于实验环境演示，但不是生产环境的最佳实践。</p>
+<p>嗯，这是个好年代，但我不希望为每个命令都输入主机名！
+幸运的是，mussh 支持<code>-H</code>选项，从文件中每次读取一行为主机。
+于是可以从你有的任何存储机制（文件、数据库、RESTful）中抓取，管道输入。</p>
+<div class="highlight"><pre><span class="nv">$ </span>grep <span class="s2">"rpi-"</span> servers.txt <span class="p">|</span> mussh -l pi -H - -c <span class="s1">'uptime'</span>
+pi@rpi-1: 21:12:54 up <span class="m">4</span> days, 23:18, <span class="m">1</span> user, load average: 0.00
+pi@rpi-2: 21:12:54 up <span class="m">4</span> days, 23:18, <span class="m">1</span> user, load average: 0.00
+</pre></div>
+<p>在这个片段中，从一个文本文件中过滤我的 Raspberry Pi 服务器，并发送给 mussh。
+秘诀是<code>-H -</code>告诉 mussh 从<code>stdin</code>读取文件。</p>
+<h2 id="conclusion">Conclusion<a class="headerlink" href="#conclusion" title="Permanent link">¶</a></h2>
+<p>温故而知新。
+过去的工具依然存在，激励创新，使我们大胆的更新换代。
+这里讨论的工具继任者还在起步阶段。
+其中一些仍在积极的开发，蜂拥的使用促使开发者们把它们推到下一个级别。
+All of them have contributed to getting us where we are today and deserve if nothing else a tip of the hat.</p>
+<p>PS：翻译的比较烂 Orz，最后一句还没整明白。后期可以润色下，有些地方太生涩了。</p>
+            <section>
+    <p id="post-share-links">
+    Share on:
+    <a href="http://twitter.com/home?status=5%E6%AC%BE%E7%BB%8F%E5%85%B8%E7%9A%84%20DevOps%20%E5%B7%A5%E5%85%B7%20http%3A//www.7rack.info/5-Unsung-tools-of-devops.html" target="_blank" title="Share on Twitter">Twitter</a>
+    ❄
+    <a href="http://www.facebook.com/sharer/sharer.php?s=100&amp;p%5Burl%5D=http%3A//www.7rack.info/5-Unsung-tools-of-devops.html" target="_blank" title="Share on Facebook">Facebook</a>
+    ❄
+    <a href="https://plus.google.com/share?url=http%3A//www.7rack.info/5-Unsung-tools-of-devops.html" target="_blank" title="Share on Google Plus">Google+</a>
+    ❄
+    <a href="mailto:?subject=5%E6%AC%BE%E7%BB%8F%E5%85%B8%E7%9A%84%20DevOps%20%E5%B7%A5%E5%85%B7&amp;body=http%3A//www.7rack.info/5-Unsung-tools-of-devops.html" target="_blank" title="Share via Email">Email</a>
+    </p>
+</section>
+
+            <section>
+<div class="accordion" id="accordion2">
+    <div class="accordion-group">
+        <div class="accordion-heading">
+            <a class="accordion-toggle disqus-comment-count" data-toggle="collapse" data-parent="#accordion2"
+                href="http://www.7rack.info/5-Unsung-tools-of-devops.html#disqus_thread">
+                Comments
+            </a>
+        </div>
+        <div id="disqus_thread" class="accordion-body collapse">
+            <div class="accordion-inner">
+                <div class="comments">
+                    <div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_shortname = '7rack';
+        var disqus_identifier = 'http://www.7rack.info/5-Unsung-tools-of-devops.html';
+    var disqus_url = 'http://www.7rack.info/5-Unsung-tools-of-devops.html';
+
+    (function() {
+         var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+         dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+         (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+     })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</section>
+
+            <hr/>
+<section>
+    <h2>Related Posts</h2>
+<ul class="related-posts-list">
+<li><a href="http://www.7rack.info/npc-installation.html" title="NPC安装">NPC安装</a></li>
+</ul>
+<hr />
+</section>
+            <aside>
+            <nav>
+            <ul class="articles-timeline">
+                <li class="previous-article">« <a href="http://www.7rack.info/monitoring-solution-with-python.html" title="Previous: Python平台下监控实现">Python平台下监控实现</a></li>
+                <li class="next-article"><a href="http://www.7rack.info/linux-performance-analysis-and-tools.html" title="Next: Linux 性能分析及工具">Linux 性能分析及工具</a> »</li>
+            </ul>
+            </nav>
+            </aside>
+        </div>
+        <section>
+        <div class="span2" style="float:right;font-size:0.9em;">
+            <h4>Published</h4>
+            <time pubdate="pubdate" datetime="2014-05-10T09:34:21+08:00"> 5 10, 2014</time>
+            <h4>Category</h4>
+            <a class="category-link" href="http://www.7rack.info/categories.html#devops-ref">Devops</a>
+            <h4>Tags</h4>
+            <ul class="list-of-tags tags-in-article">
+                <li><a href="http://www.7rack.info/tags.html#cacti-ref">Cacti
+                    <span>2</span>
+</a></li>
+                <li><a href="http://www.7rack.info/tags.html#devops-ref">Devops
+                    <span>1</span>
+</a></li>
+                <li><a href="http://www.7rack.info/tags.html#iperf-ref">IPerf
+                    <span>1</span>
+</a></li>
+                <li><a href="http://www.7rack.info/tags.html#lldpd-ref">lldpd
+                    <span>1</span>
+</a></li>
+                <li><a href="http://www.7rack.info/tags.html#mussh-ref">mussh
+                    <span>1</span>
+</a></li>
+                <li><a href="http://www.7rack.info/tags.html#rancid-ref">RANCID
+                    <span>1</span>
+</a></li>
+            </ul>
+<h4>Contact</h4>
+    <a href="mailto:vimxiang@gmail.com" title="My Email Address" class="sidebar-social-links" target="_blank">
+    <i class="fa fa-envelope sidebar-social-links"></i></a>
+    <a href="http://github.com/7rack" title="My Github Profile" class="sidebar-social-links" target="_blank">
+    <i class="fa fa-github sidebar-social-links"></i></a>
+        </div>
+        </section>
+</div>
+</article>
+                </div>
+                <div class="span1"></div>
+            </div>
+        </div>
+        <div id="push"></div>
+    </div>
+<footer>
+<div id="footer">
+    <ul class="footer-content">
+        <li class="elegant-power">Powered by <a href="http://getpelican.com/" title="Pelican Home Page">Pelican</a>. Theme: <a href="http://oncrashreboot.com/pelican-elegant" title="Theme Elegant Home Page">Elegant</a> by <a href="http://oncrashreboot.com" title="Talha Mansoor Home Page">Talha Mansoor</a></li>
+    </ul>
+</div>
+</footer>            <script src="http://code.jquery.com/jquery.min.js"></script>
+        <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+        <script>
+            function validateForm(query)
+            {
+                return (query.length > 0);
+            }
+        </script>
+
+            <script type="text/javascript">
+var disqus_shortname = '7rack';
+(function () {
+    var s = document.createElement('script'); s.async = true;
+    s.type = 'text/javascript';
+    s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+    (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+}());
+</script>
+<script  language="javascript" type="text/javascript">
+function uncollapse() {
+    if (window.location.hash.match(/^#comment-\d+$/)) {
+        $('#disqus_thread').collapse('show');
+    }
+}
+</script>
+<script type="text/javascript" language="JavaScript">
+uncollapse();
+window.onhashchange=function(){
+    if (window.location.hash.match(/^#comment-\d+$/))
+        window.location.reload(true);
+}
+</script>
+<script>
+$('#disqus_thread').on('shown', function () {
+    var link = document.getElementsByClassName('accordion-toggle');
+    var old_innerHTML = link[0].innerHTML;
+    $(link[0]).fadeOut(500, function() {
+        $(this).text('Click here to hide comments').fadeIn(500);
+    });
+    $('#disqus_thread').on('hidden', function () {
+        $(link[0]).fadeOut(500, function() {
+            $(this).text(old_innerHTML).fadeIn(500);
+        });
+    })
+})
+</script>
+
+
+    </body>
+    <!-- Theme: Elegant built for Pelican
+    License : http://oncrashreboot.com/pelican-elegant -->
+</html>

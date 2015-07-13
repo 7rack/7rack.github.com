@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en-US">
+    <head>
+        <meta charset="utf-8"> 
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="author" content="7rack" />
+        <meta name="copyright" content="7rack" />
+
+        <meta property="og:type" content="article" />
+        <meta name="twitter:card" content="summary">
+
+<meta name="keywords" content="OpenStack, DevStack, Cloud, " />
+
+<meta property="og:title" content="DevStack安装并使用CLI创建实例 "/>
+<meta property="og:url" content="http://www.7rack.info/devstack-installation-and-create-instance-with-cli.html" />
+<meta property="og:description" content="安装DevStack¶ 由于在内地的网络环境问题，直接按照DevStack官方网站的方法安装会遇到一系列的问题，在此不吐槽了Orz。 我是选择OpenStack on Hardware且是All-In-One的环境搭建。 按照All-In-One中Add your user创建完stack用户设置好权限后， 接下来对网络环境进行一些设置。 设置pip¶ 设置使用豆瓣pypi源vim ~/.pip/pip.conf,注意是以stack用户登录，如果.pip目录不存在需自行创建。 [global] index-url = http://pypi.douban.com/simple/ 设置Ubuntu源¶ 设置Ubuntu系统镜像源，可参看163的Ubuntu镜像使用帮助。然后按照All-In-One中Download DevStack去下载DevStack。 配置local.conf¶ 在运行之前需编辑local.conf文件，具体还是参看 ..." />
+<meta property="og:site_name" content="轨迹" />
+<meta property="og:article:author" content="7rack" />
+<meta property="og:article:published_time" content="2014-04-05T18:37:00+08:00" />
+<meta name="twitter:title" content="DevStack安装并使用CLI创建实例 ">
+<meta name="twitter:description" content="安装DevStack¶ 由于在内地的网络环境问题，直接按照DevStack官方网站的方法安装会遇到一系列的问题，在此不吐槽了Orz。 我是选择OpenStack on Hardware且是All-In-One的环境搭建。 按照All-In-One中Add your user创建完stack用户设置好权限后， 接下来对网络环境进行一些设置。 设置pip¶ 设置使用豆瓣pypi源vim ~/.pip/pip.conf,注意是以stack用户登录，如果.pip目录不存在需自行创建。 [global] index-url = http://pypi.douban.com/simple/ 设置Ubuntu源¶ 设置Ubuntu系统镜像源，可参看163的Ubuntu镜像使用帮助。然后按照All-In-One中Download DevStack去下载DevStack。 配置local.conf¶ 在运行之前需编辑local.conf文件，具体还是参看 ...">
+
+        <title>DevStack安装并使用CLI创建实例  · 轨迹
+</title>
+        <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
+        <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css" rel="stylesheet">
+<link rel="stylesheet" href="http://www.7rack.info/theme/css/style.min.css?7aeecf36">
+<script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+     (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+     m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+     })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-39673245-1', 'auto');
+    ga('send', 'pageview');
+</script>
+    </head>
+    <body>
+        <div id="content-sans-footer">
+        <div class="navbar navbar-static-top">
+            <div class="navbar-inner">
+                <div class="container-fluid">
+                    <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </a>
+                    <a class="brand" href="http://www.7rack.info/"><span class=site-name>轨迹</span></a>
+                    <div class="nav-collapse collapse">
+                        <ul class="nav pull-right top-menu">
+                            <li ><a href="http://www.7rack.info">Home</a></li>
+                            <li ><a href="http://www.7rack.info/pages/about-me.html">About</a></li>
+                            <li ><a href="http://www.7rack.info/categories.html">Categories</a></li>
+                            <li ><a href="http://www.7rack.info/tags.html">Tags</a></li>
+                            <li ><a href="http://www.7rack.info/archives.html">Archives</a></li>
+                            <li><form class="navbar-search" action="http://www.7rack.info/search.html" onsubmit="return validateForm(this.elements['q'].value);"> <input type="text" class="search-query" placeholder="Search" name="q" id="tipue_search_input"></form></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid">
+            <div class="row-fluid">
+                <div class="span1"></div>
+                <div class="span10">
+<article>
+<div class="row-fluid">
+    <header class="page-header span10 offset2">
+    <h1><a href="http://www.7rack.info/devstack-installation-and-create-instance-with-cli.html"> DevStack安装并使用CLI创建实例  </a></h1>
+    </header>
+</div>
+
+<div class="row-fluid">
+    <div class="span2 table-of-content">
+        <nav>
+        <h4>Contents</h4>
+        <div class="toc">
+<ul>
+<li><a href="#devstack">安装DevStack</a><ul>
+<li><a href="#pip">设置pip</a></li>
+<li><a href="#ubuntu">设置Ubuntu源</a></li>
+<li><a href="#localconf">配置local.conf</a></li>
+</ul>
+</li>
+<li><a href="#_1">创建实例</a><ul>
+<li><a href="#keypair">创建keypair</a></li>
+<li><a href="#security-group">设置security group</a></li>
+<li><a href="#glance">创建glance镜像</a></li>
+<li><a href="#_2">启动镜像</a></li>
+<li><a href="#ssh">SSH 登录实例</a></li>
+</ul>
+</li>
+</ul>
+</div>
+        </nav>
+    </div>
+    <div class="span8 article-content">
+
+            
+            
+<h2 id="devstack">安装DevStack<a class="headerlink" href="#devstack" title="Permanent link">¶</a></h2>
+<p>由于在内地的网络环境问题，直接按照DevStack官方网站的方法安装会遇到一系列的问题，在此不吐槽了Orz。</p>
+<p>我是选择OpenStack on Hardware且是<a href="http://devstack.org/guides/single-machine.html">All-In-One</a>的环境搭建。 按照<a href="http://devstack.org/guides/single-machine.html">All-In-One</a>中<strong>Add your user</strong>创建完stack用户设置好权限后， 接下来对网络环境进行一些设置。  </p>
+<h4 id="pip">设置pip<a class="headerlink" href="#pip" title="Permanent link">¶</a></h4>
+<p>设置使用豆瓣pypi源<code>vim ~/.pip/pip.conf</code>,注意是以stack用户登录，如果.pip目录不存在需自行创建。</p>
+<div class="highlight"><pre><span class="k">[global]</span>
+<span class="na">index-url</span> <span class="o">=</span> <span class="s">http://pypi.douban.com/simple/</span>
+</pre></div>
+<h4 id="ubuntu">设置Ubuntu源<a class="headerlink" href="#ubuntu" title="Permanent link">¶</a></h4>
+<p>设置Ubuntu系统镜像源，可参看163的Ubuntu镜像<a href="http://mirrors.163.com/.help/ubuntu.html">使用帮助</a>。然后按照<a href="http://devstack.org/guides/single-machine.html">All-In-One</a>中<strong>Download DevStack</strong>去下载DevStack。</p>
+<h4 id="localconf">配置local.conf<a class="headerlink" href="#localconf" title="Permanent link">¶</a></h4>
+<p>在运行之前需编辑<code>local.conf</code>文件，具体还是参看<a href="http://devstack.org/guides/single-machine.html">All-In-One</a>中<strong>Run DevStack</strong>。
+如果就这样运行<code>./stack.sh</code>的话，还是会各种超时！ 我们可以不使用github repo，改用国内的oschina或者csdn repo，在<code>local.conf</code>中另外加入</p>
+<div class="highlight"><pre>GIT_BASE=https://git.oschina.net
+#or csdn repo
+#GIT_BASE=https://code.csdn.net
+</pre></div>
+<p>运行后，你就可以通过dashboard来操作，添加实例。接下来我使用CLI去完成一个简单的添加实例。</p>
+<h2 id="_1">创建实例<a class="headerlink" href="#_1" title="Permanent link">¶</a></h2>
+<p>在这之前需要 source 环境变量，运行<code>source openrc</code> 即可。
+如果对命令有问题，可以使用<code>nova help</code> 相关命令来查看帮助。</p>
+<h4 id="keypair">创建keypair<a class="headerlink" href="#keypair" title="Permanent link">¶</a></h4>
+<p>创建SSH keypair 并添加到Nova : </p>
+<div class="highlight"><pre>ssh-keygen -f ~/.ssh/id_rsa -t rsa -N ''
+nova keypair-add --pub_key ~/.ssh/id_rsa.pub default_key
+</pre></div>
+<h4 id="security-group">设置security group<a class="headerlink" href="#security-group" title="Permanent link">¶</a></h4>
+<p>编辑“default” Security Group 以允许 SSH 和 ICMP：</p>
+<div class="highlight"><pre>nova secgroup-add-rule default tcp 22 22 0.0.0.0/24
+nova secgroup-add-rule default icmp -1 -1 0.0.0.0/24
+</pre></div>
+<h4 id="glance">创建glance镜像<a class="headerlink" href="#glance" title="Permanent link">¶</a></h4>
+<p>这里以ubuntu 12.04为例</p>
+<div class="highlight"><pre>wget http://cloud-images.ubuntu.com/precise/current/precise-server-cloudimg-amd64-disk1.img
+</pre></div>
+<p>上传该镜像</p>
+<div class="highlight"><pre>glance image-create --name ubuntu12.04 --is-public=true --container-format=bare --disk-format=qcow2 --file precise-server-cloudimg-amd64-disk1.img
+</pre></div>
+<p>然后可以通过<code>glance image-list</code>查看镜像是否上传正确。</p>
+<h4 id="_2">启动镜像<a class="headerlink" href="#_2" title="Permanent link">¶</a></h4>
+<p>首先查看有哪些flavor可以使用，运行<code>nova flavor-list</code>列出当前flavor。</p>
+<p>启动刚上传的镜像：</p>
+<div class="highlight"><pre>nova boot --flavor m1.medium --image ubuntu12.04 --key-name default_key  ubuntuinstance
+</pre></div>
+<p>查看刚启动的实例状态</p>
+<div class="highlight"><pre>nova list
+nova show ubuntuinstance
+</pre></div>
+<p>如果是可用状态，可以检查该实例的console以检查启动状态</p>
+<div class="highlight"><pre>nova console-log ubuntuinstance
+</pre></div>
+<h4 id="ssh">SSH 登录实例<a class="headerlink" href="#ssh" title="Permanent link">¶</a></h4>
+<p>先列出所有的namespaces：</p>
+<div class="highlight"><pre>ip netns
+</pre></div>
+<p>这个输出应该包含2行，一行以<code>qrouter</code>开头，另一行以<code>qdhcp</code>开头。</p>
+<p>从<code>qdhcp</code>的namesapce登录实例。</p>
+<div class="highlight"><pre>ip netns exec qdhcp-c73d082f-d7ed-4b53-ac93-7a6a4c3fa3aa ssh -i default_key ubuntu@ubuntuinstance
+</pre></div>
+<p>更多的命令资料还是在OpenStack的<a href="http://docs.openstack.org/cli-reference/content/">doc</a>文件中。</p>
+            <section>
+    <p id="post-share-links">
+    Share on:
+    <a href="http://twitter.com/home?status=DevStack%E5%AE%89%E8%A3%85%E5%B9%B6%E4%BD%BF%E7%94%A8CLI%E5%88%9B%E5%BB%BA%E5%AE%9E%E4%BE%8B%20http%3A//www.7rack.info/devstack-installation-and-create-instance-with-cli.html" target="_blank" title="Share on Twitter">Twitter</a>
+    ❄
+    <a href="http://www.facebook.com/sharer/sharer.php?s=100&amp;p%5Burl%5D=http%3A//www.7rack.info/devstack-installation-and-create-instance-with-cli.html" target="_blank" title="Share on Facebook">Facebook</a>
+    ❄
+    <a href="https://plus.google.com/share?url=http%3A//www.7rack.info/devstack-installation-and-create-instance-with-cli.html" target="_blank" title="Share on Google Plus">Google+</a>
+    ❄
+    <a href="mailto:?subject=DevStack%E5%AE%89%E8%A3%85%E5%B9%B6%E4%BD%BF%E7%94%A8CLI%E5%88%9B%E5%BB%BA%E5%AE%9E%E4%BE%8B&amp;body=http%3A//www.7rack.info/devstack-installation-and-create-instance-with-cli.html" target="_blank" title="Share via Email">Email</a>
+    </p>
+</section>
+
+            <section>
+<div class="accordion" id="accordion2">
+    <div class="accordion-group">
+        <div class="accordion-heading">
+            <a class="accordion-toggle disqus-comment-count" data-toggle="collapse" data-parent="#accordion2"
+                href="http://www.7rack.info/devstack-installation-and-create-instance-with-cli.html#disqus_thread">
+                Comments
+            </a>
+        </div>
+        <div id="disqus_thread" class="accordion-body collapse">
+            <div class="accordion-inner">
+                <div class="comments">
+                    <div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_shortname = '7rack';
+        var disqus_identifier = 'http://www.7rack.info/devstack-installation-and-create-instance-with-cli.html';
+    var disqus_url = 'http://www.7rack.info/devstack-installation-and-create-instance-with-cli.html';
+
+    (function() {
+         var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+         dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+         (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+     })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</section>
+
+            <hr/>
+            <aside>
+            <nav>
+            <ul class="articles-timeline">
+                <li class="previous-article">« <a href="http://www.7rack.info/creating-kvm-guest-on-ubuntu.html" title="Previous: Ubuntu上运行KVM创建虚拟机">Ubuntu上运行KVM创建虚拟机</a></li>
+                <li class="next-article"><a href="http://www.7rack.info/monitoring-solution-with-python.html" title="Next: Python平台下监控实现">Python平台下监控实现</a> »</li>
+            </ul>
+            </nav>
+            </aside>
+        </div>
+        <section>
+        <div class="span2" style="float:right;font-size:0.9em;">
+            <h4>Published</h4>
+            <time pubdate="pubdate" datetime="2014-04-05T18:37:00+08:00"> 4 5, 2014</time>
+            <h4>Category</h4>
+            <a class="category-link" href="http://www.7rack.info/categories.html#cloud-ref">Cloud</a>
+            <h4>Tags</h4>
+            <ul class="list-of-tags tags-in-article">
+                <li><a href="http://www.7rack.info/tags.html#devstack-ref">DevStack
+                    <span>1</span>
+</a></li>
+                <li><a href="http://www.7rack.info/tags.html#openstack-ref">OpenStack
+                    <span>1</span>
+</a></li>
+            </ul>
+<h4>Contact</h4>
+    <a href="mailto:vimxiang@gmail.com" title="My Email Address" class="sidebar-social-links" target="_blank">
+    <i class="fa fa-envelope sidebar-social-links"></i></a>
+    <a href="http://github.com/7rack" title="My Github Profile" class="sidebar-social-links" target="_blank">
+    <i class="fa fa-github sidebar-social-links"></i></a>
+        </div>
+        </section>
+</div>
+</article>
+                </div>
+                <div class="span1"></div>
+            </div>
+        </div>
+        <div id="push"></div>
+    </div>
+<footer>
+<div id="footer">
+    <ul class="footer-content">
+        <li class="elegant-power">Powered by <a href="http://getpelican.com/" title="Pelican Home Page">Pelican</a>. Theme: <a href="http://oncrashreboot.com/pelican-elegant" title="Theme Elegant Home Page">Elegant</a> by <a href="http://oncrashreboot.com" title="Talha Mansoor Home Page">Talha Mansoor</a></li>
+    </ul>
+</div>
+</footer>            <script src="http://code.jquery.com/jquery.min.js"></script>
+        <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+        <script>
+            function validateForm(query)
+            {
+                return (query.length > 0);
+            }
+        </script>
+
+            <script type="text/javascript">
+var disqus_shortname = '7rack';
+(function () {
+    var s = document.createElement('script'); s.async = true;
+    s.type = 'text/javascript';
+    s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+    (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+}());
+</script>
+<script  language="javascript" type="text/javascript">
+function uncollapse() {
+    if (window.location.hash.match(/^#comment-\d+$/)) {
+        $('#disqus_thread').collapse('show');
+    }
+}
+</script>
+<script type="text/javascript" language="JavaScript">
+uncollapse();
+window.onhashchange=function(){
+    if (window.location.hash.match(/^#comment-\d+$/))
+        window.location.reload(true);
+}
+</script>
+<script>
+$('#disqus_thread').on('shown', function () {
+    var link = document.getElementsByClassName('accordion-toggle');
+    var old_innerHTML = link[0].innerHTML;
+    $(link[0]).fadeOut(500, function() {
+        $(this).text('Click here to hide comments').fadeIn(500);
+    });
+    $('#disqus_thread').on('hidden', function () {
+        $(link[0]).fadeOut(500, function() {
+            $(this).text(old_innerHTML).fadeIn(500);
+        });
+    })
+})
+</script>
+
+
+    </body>
+    <!-- Theme: Elegant built for Pelican
+    License : http://oncrashreboot.com/pelican-elegant -->
+</html>
