@@ -140,9 +140,9 @@ Hostname=CLIENT_HOSTNAME
 </pre></div>
 <p>同时你可以设置<code>StartAgents=0</code>来禁用 passive checks（非必须，但可以减少无用的进程数）。</p>
 <h3 id="server">Server 端配置<a class="headerlink" href="#server" title="Permanent link">¶</a></h3>
-<p>添加新的 host，记住设置的<em>Host Name</em>必须与 agent 端配置的一致（Hostname）,同时在<em>Agent interface</em>中的<em>IP address</em>项填写<code>0.0.0.0</code>，端口默认即可。
-<img alt="image" src="http://www.7rack.info/images/2015/07/zabbix_host_config.png"/></p>
-<p>Zabbix agent 处理 items 分为<em>Zabbix agent</em>或者<em>Zabbix agent(active)</em>，通过在 Zabbix server 配置<em>item type</em>时选择。</p>
+<p>添加新的 host，记住设置的<em>Host Name</em>必须与 agent 端配置的一致（Hostname）,同时在<em>Agent interface</em>中的<em>IP address</em>项填写<code>0.0.0.0</code>，端口默认即可。</p>
+<p><img alt="image" src="http://www.7rack.info/images/2015/07/zabbix_host_config.png"/>
+Zabbix agent 处理 items 分为<em>Zabbix agent</em>或者<em>Zabbix agent(active)</em>，通过在 Zabbix server 配置<em>item type</em>时选择。</p>
 <p>默认的<em>templates</em>是配置为<em>passive check</em>。所以，需要更新 template(和所有连接的templates)的所有 items type、Discovery rules、item prototypes 为<em>Zabbix agent (active)</em>。</p>
 <p>当然可以直接在 <a href="https://github.com/7rack/zabbix/tree/master/zbx_active_template">github</a> 下载使用。</p>
             <section>
