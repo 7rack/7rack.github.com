@@ -5,28 +5,28 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>http://www.7rack.info/</loc>
-<lastmod>2015-07-19T18:50:28-00:00</lastmod>
+<lastmod>2015-07-23T23:59:06-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>http://www.7rack.info/archives.html</loc>
-<lastmod>2015-07-19T18:50:28-00:00</lastmod>
+<lastmod>2015-07-23T23:59:06-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>http://www.7rack.info/tags.html</loc>
-<lastmod>2015-07-19T18:50:28-00:00</lastmod>
+<lastmod>2015-07-23T23:59:06-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>http://www.7rack.info/categories.html</loc>
-<lastmod>2015-07-19T18:50:28-00:00</lastmod>
+<lastmod>2015-07-23T23:59:06-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
@@ -48,6 +48,13 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
 <loc>http://www.7rack.info/Use-checkinstall_fpm-create-packages.html</loc>
 <lastmod>2015-01-17T13:03:17+08:00</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.5</priority>
+</url>
+
+<url>
+<loc>http://www.7rack.info/MailServer-with-Qmailtoaster-and-Haproxy.html</loc>
+<lastmod>2014-09-13T23:46:03+08:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.5</priority>
 </url>
@@ -473,6 +480,13 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 </url>
 
 <url>
+<loc>http://www.7rack.info/tag/qmailtoaster.html</loc>
+<lastmod>2014-09-13T23:46:03+08:06</lastmod>
+<changefreq>daily</changefreq>
+<priority>0.5</priority>
+</url>
+
+<url>
 <loc>http://www.7rack.info/tag/htop.html</loc>
 <lastmod>2014-05-13T11:04:17+08:06</lastmod>
 <changefreq>daily</changefreq>
@@ -755,6 +769,13 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
 <loc>http://www.7rack.info/tag/nicstat.html</loc>
 <lastmod>2014-05-13T11:04:17+08:06</lastmod>
+<changefreq>daily</changefreq>
+<priority>0.5</priority>
+</url>
+
+<url>
+<loc>http://www.7rack.info/tag/haproxy.html</loc>
+<lastmod>2014-09-13T23:46:03+08:06</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
