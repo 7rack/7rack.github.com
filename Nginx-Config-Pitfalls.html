@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en-US">
+    <head>
+        <meta charset="utf-8"> 
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="author" content="7rack" />
+        <meta name="copyright" content="7rack" />
+
+        <meta property="og:type" content="article" />
+        <meta name="twitter:card" content="summary">
+
+<meta name="keywords" content="Nginx, Devops, " />
+
+<meta property="og:title" content="Nginx 配置陷阱和常见错误（翻译） "/>
+<meta property="og:url" content="http://www.7rack.info/Nginx-Config-Pitfalls.html" />
+<meta property="og:description" content="" />
+<meta property="og:site_name" content="轨迹" />
+<meta property="og:article:author" content="7rack" />
+<meta property="og:article:published_time" content="2015-11-23T21:22:00+08:00" />
+<meta name="twitter:title" content="Nginx 配置陷阱和常见错误（翻译） ">
+<meta name="twitter:description" content="">
+
+        <title>Nginx 配置陷阱和常见错误（翻译）  · 轨迹
+</title>
+        <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
+        <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css" rel="stylesheet">
+<link rel="stylesheet" href="http://www.7rack.info/theme/css/style.min.css?7aeecf36">
+<script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+     (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+     m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+     })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-39673245-1', 'auto');
+    ga('send', 'pageview');
+</script>
+    </head>
+    <body>
+        <div id="content-sans-footer">
+        <div class="navbar navbar-static-top">
+            <div class="navbar-inner">
+                <div class="container-fluid">
+                    <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </a>
+                    <a class="brand" href="http://www.7rack.info/"><span class=site-name>轨迹</span></a>
+                    <div class="nav-collapse collapse">
+                        <ul class="nav pull-right top-menu">
+                            <li ><a href="http://www.7rack.info">Home</a></li>
+                            <li ><a href="http://www.7rack.info/pages/about-me.html">About</a></li>
+                            <li ><a href="http://www.7rack.info/categories.html">Categories</a></li>
+                            <li ><a href="http://www.7rack.info/tags.html">Tags</a></li>
+                            <li ><a href="http://www.7rack.info/archives.html">Archives</a></li>
+                            <li><form class="navbar-search" action="http://www.7rack.info/search.html" onsubmit="return validateForm(this.elements['q'].value);"> <input type="text" class="search-query" placeholder="Search" name="q" id="tipue_search_input"></form></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid">
+            <div class="row-fluid">
+                <div class="span1"></div>
+                <div class="span10">
+<article>
+<div class="row-fluid">
+    <header class="page-header span10 offset2">
+    <h1><a href="http://www.7rack.info/Nginx-Config-Pitfalls.html"> Nginx 配置陷阱和常见错误（翻译）  </a></h1>
+    </header>
+</div>
+
+<div class="row-fluid">
+    <div class="span2 table-of-content">
+        <nav>
+        <h4>Contents</h4>
+        <div class="toc">
+<ul>
+<li><a href="#_1">关于本指南</a></li>
+<li><a href="#_2">我的问题未列出</a></li>
+<li><a href="#chmod-777">Chmod 777</a></li>
+<li><a href="#root-location">Root 在 Location 区块</a></li>
+<li><a href="#index">多重 Index 指令</a></li>
+<li><a href="#if">使用 If</a></li>
+<li><a href="#server-name-if">Server Name (if)</a></li>
+<li><a href="#if_1">检查文件 (if) 存在</a></li>
+<li><a href="#front-controller-web">Front Controller 模式 WEB 应用</a></li>
+<li><a href="#php">把不受控制的请求给 PHP</a></li>
+<li><a href="#script-filename-fastcgi-path">Script Filename 中的 FastCGI Path</a></li>
+<li><a href="#rewrites">繁杂的 Rewrites</a></li>
+<li><a href="#rewrite-http">Rewrite 丢失 http://</a></li>
+<li><a href="#_3">代理一切</a></li>
+<li><a href="#_4">配置更改没有生效</a></li>
+<li><a href="#virtualbox">VirtualBox</a></li>
+<li><a href="#http">缺失的 HTTP 头</a></li>
+<li><a href="#document-root-locations">没有使用标准的 Document Root Locations</a></li>
+<li><a href="#document-root">使用默认的 Document Root</a></li>
+<li><a href="#hostname">使用 Hostname 去解析地址</a></li>
+<li><a href="#https-sslv3">HTTPS 中使用 SSLv3</a></li>
+</ul>
+</div>
+        </nav>
+    </div>
+    <div class="span8 article-content">
+
+            
+            <p><a href="https://www.nginx.com/resources/wiki/start/topics/tutorials/config_pitfalls/">原文</a></p>
+<p>新老用户都可能遇到陷阱。下面我们列出频繁出现的问题，以及如何解决。
+在 Freenode IRC #nginx 频道，我们经常看到这些问题。</p>
+
+<h2 id="_1">关于本指南<a class="headerlink" href="#_1" title="Permanent link">¶</a></h2>
+<p>最常见的是有人试图从其他指南拷贝配置片段。并非所有的指南是错误的，但绝大部分是有问题的。
+甚至 Linode library 的质量也不高，NGINX 社区成员有义务去尝试更正。</p>
+<p>这些文档由社区成员创建并审核。存在该指南的意义在于社区成员常见及反复出现的问题。</p>
+<h2 id="_2">我的问题未列出<a class="headerlink" href="#_2" title="Permanent link">¶</a></h2>
+<p>你遇到的问题在这里没有看到，也许我们在这里没有指明你经历的问题。不要以为你无缘无故的浏览到该
+页面，你看到这些是因为你做错的事情列在这里。</p>
+<p>当涉及到支持许多用户的很多问题，社区成员不想去支持未遵守约定的配置。通过阅读以下指南，修复你的配置。</p>
+<h2 id="chmod-777">Chmod 777<a class="headerlink" href="#chmod-777" title="Permanent link">¶</a></h2>
+<p>绝不使用 777。它可能是个漂亮的号码，即使在测试中也表现的你没有任何线索在做什么。在整个路径中
+查看权限，想想会发生什么。</p>
+<p>轻松的显示路径权限，可以使用：</p>
+<div class="highlight"><pre>namei -om /path/to/check
+</pre></div>
+<h2 id="root-location">Root 在 Location 区块<a class="headerlink" href="#root-location" title="Permanent link">¶</a></h2>
+<p><strong>BAD</strong></p>
+<div class="highlight"><pre><span class="k">server</span> <span class="p">{</span>
+    <span class="kn">server_name</span> <span class="s">www.example.com</span><span class="p">;</span>
+    <span class="kn">location</span> <span class="s">/</span> <span class="p">{</span>
+        <span class="kn">root</span> <span class="s">/var/www/nginx-default/</span><span class="p">;</span>
+        <span class="c1"># [...]</span>
+      <span class="p">}</span>
+    <span class="kn">location</span> <span class="s">/foo</span> <span class="p">{</span>
+        <span class="kn">root</span> <span class="s">/var/www/nginx-default/</span><span class="p">;</span>
+        <span class="c1"># [...]</span>
+    <span class="p">}</span>
+    <span class="kn">location</span> <span class="s">/bar</span> <span class="p">{</span>
+        <span class="kn">root</span> <span class="s">/var/www/nginx-default/</span><span class="p">;</span>
+        <span class="c1"># [...]</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+<p>这有效。把<em>root</em>放在<em>location</em>区块可以生效而且完全有效。错误之处在于开始添加<em>location</em>区块，
+如果你在每个<em>location</em>区块添加<em>root</em>指令，没有匹配<em>location</em>区块将没有<em>root</em>。下面看看正确的配置。</p>
+<p><strong>GOOD</strong></p>
+<div class="highlight"><pre><span class="k">server</span> <span class="p">{</span>
+    <span class="kn">server_name</span> <span class="s">www.example.com</span><span class="p">;</span>
+    <span class="kn">root</span> <span class="s">/var/www/nginx-default/</span><span class="p">;</span>
+    <span class="kn">location</span> <span class="s">/</span> <span class="p">{</span>
+        <span class="c1"># [...]</span>
+    <span class="p">}</span>
+    <span class="kn">location</span> <span class="s">/foo</span> <span class="p">{</span>
+        <span class="c1"># [...]</span>
+    <span class="p">}</span>
+    <span class="kn">location</span> <span class="s">/bar</span> <span class="p">{</span>
+        <span class="c1"># [...]</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+<h2 id="index">多重 Index 指令<a class="headerlink" href="#index" title="Permanent link">¶</a></h2>
+<p><strong>BAD</strong></p>
+<div class="highlight"><pre><span class="k">http</span> <span class="p">{</span>
+    <span class="kn">index</span> <span class="s">index.php</span> <span class="s">index.htm</span> <span class="s">index.html</span><span class="p">;</span>
+    <span class="kn">server</span> <span class="p">{</span>
+        <span class="kn">server_name</span> <span class="s">www.example.com</span><span class="p">;</span>
+        <span class="kn">location</span> <span class="s">/</span> <span class="p">{</span>
+            <span class="kn">index</span> <span class="s">index.php</span> <span class="s">index.htm</span> <span class="s">index.html</span><span class="p">;</span>
+            <span class="c1"># [...]</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="kn">server</span> <span class="p">{</span>
+        <span class="kn">server_name</span> <span class="s">example.com</span><span class="p">;</span>
+        <span class="kn">location</span> <span class="s">/</span> <span class="p">{</span>
+            <span class="kn">index</span> <span class="s">index.php</span> <span class="s">index.htm</span> <span class="s">index.html</span><span class="p">;</span>
+            <span class="c1"># [...]</span>
+        <span class="p">}</span>
+        <span class="kn">location</span> <span class="s">/foo</span> <span class="p">{</span>
+            <span class="kn">index</span> <span class="s">index.php</span><span class="p">;</span>
+            <span class="c1"># [...]</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+<p>为什么在不需要时重复那么多行。简单的使用一次 “index” 指令。仅仅需要添加到<em>http{}</em>区块，将会被继承。</p>
+<p><strong>GOOD</strong></p>
+<div class="highlight"><pre><span class="k">http</span> <span class="p">{</span>
+    <span class="kn">index</span> <span class="s">index.php</span> <span class="s">index.htm</span> <span class="s">index.html</span><span class="p">;</span>
+    <span class="kn">server</span> <span class="p">{</span>
+        <span class="kn">server_name</span> <span class="s">www.example.com</span><span class="p">;</span>
+        <span class="kn">location</span> <span class="s">/</span> <span class="p">{</span>
+            <span class="c1"># [...]</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="kn">server</span> <span class="p">{</span>
+        <span class="kn">server_name</span> <span class="s">example.com</span><span class="p">;</span>
+        <span class="kn">location</span> <span class="s">/</span> <span class="p">{</span>
+            <span class="c1"># [...]</span>
+        <span class="p">}</span>
+        <span class="kn">location</span> <span class="s">/foo</span> <span class="p">{</span>
+            <span class="c1"># [...]</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+<h2 id="if">使用 If<a class="headerlink" href="#if" title="Permanent link">¶</a></h2>
+<p>有几个页面介绍使用 if 语句。它叫做<em>IfIsEvil</em>，你真的应该看看。让我们看看使用 if 的坏处。</p>
+<p><strong>See also</strong></p>
+<p><a href="https://www.nginx.com/resources/wiki/start/topics/depth/ifisevil/">If Is Evil</a></p>
+<h2 id="server-name-if">Server Name (if)<a class="headerlink" href="#server-name-if" title="Permanent link">¶</a></h2>
+<p><strong>BAD</strong></p>
+<div class="highlight"><pre><span class="k">server</span> <span class="p">{</span>
+    <span class="kn">server_name</span> <span class="s">example.com</span> <span class="s">*.example.com</span><span class="p">;</span>
+        <span class="kn">if</span> <span class="s">(</span><span class="nv">$host</span> <span class="p">~</span><span class="sr">*</span> <span class="s">^www\.(.+))</span> <span class="p">{</span>
+            <span class="kn">set</span> <span class="nv">$raw_domain</span> <span class="nv">$1</span><span class="p">;</span>
+            <span class="kn">rewrite</span> <span class="s">^/(.*)</span>$ <span class="nv">$raw_domain/$1</span> <span class="s">permanent</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="c1"># [...]</span>
+    <span class="p">}</span>
+<span class="k">}</span>
+</pre></div>
+<p>这里有3个问题。第一个是<em>if</em>，我们关心的。当 NGINX 接受一个请求不管是子域名 www.example.com
+还是 example.com，<em>if</em>指令总是会判断。因为你要求 NGINX 检查每个请求的 <em>Host</em> 头。
+这样效率低下，你应该避免。像下面一样使用2个<em>server</em>指令。</p>
+<p><strong>GOOD</strong></p>
+<div class="highlight"><pre><span class="k">server</span> <span class="p">{</span>
+    <span class="kn">server_name</span> <span class="s">www.example.com</span><span class="p">;</span>
+    <span class="kn">return</span> <span class="mi">301</span> <span class="nv">$scheme://example.com$request_uri</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="k">server</span> <span class="p">{</span>
+    <span class="kn">server_name</span> <span class="s">example.com</span><span class="p">;</span>
+    <span class="c1"># [...]</span>
+<span class="p">}</span>
+</pre></div>
+<p>除了配置文件更易于阅读，这种方法减少 NGINX 处理需求。我们摆脱了虚假的<strong>if</strong>，同时使用
+<code>$scheme</code>,没有硬编码 URI 的结构，可以是 http 或者 https。</p>
+<h2 id="if_1">检查文件 (if) 存在<a class="headerlink" href="#if_1" title="Permanent link">¶</a></h2>
+<p>使用 if 去检查文件是否存在是糟糕的。如果你使用最新版本的 NGINX ，应该看看<code>try_files</code>,更
+易使用。</p>
+<p><strong>BAD</strong></p>
+<div class="highlight"><pre><span class="k">server</span> <span class="p">{</span>
+    <span class="kn">root</span> <span class="s">/var/www/example.com</span><span class="p">;</span>
+    <span class="kn">location</span> <span class="s">/</span> <span class="p">{</span>
+        <span class="kn">if</span> <span class="s">(!-f</span> <span class="nv">$request_filename</span><span class="s">)</span> <span class="p">{</span>
+            <span class="kn">break</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+<p><strong>GOOD</strong></p>
+<div class="highlight"><pre><span class="k">server</span> <span class="p">{</span>
+    <span class="kn">root</span> <span class="s">/var/www/example.com</span><span class="p">;</span>
+    <span class="kn">location</span> <span class="s">/</span> <span class="p">{</span>
+        <span class="kn">try_files</span> <span class="nv">$uri</span> <span class="nv">$uri/</span> <span class="s">/index.html</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+<p>这里我们判断<code>$uri</code>是否存在不再需要<code>if</code>。使用<code>try_files</code>意味着可以依序测试。
+如果<code>$uri</code>不存在，尝试<code>$uri/</code>，如果还不存在，尝试备用的<em>location</em>。</p>
+<p>在这个案例中，会先查看<code>$uri</code>文件是否存在，存在就返回。如果不存在，就检查该目录是否存在。
+如果不存在，将返回<code>index.html</code>,你必须确定存在该文件。</p>
+<h2 id="front-controller-web">Front Controller 模式 WEB 应用<a class="headerlink" href="#front-controller-web" title="Permanent link">¶</a></h2>
+<p>“Front Controller 模式”设计是受欢迎的，且用在许多最流行的 PHP 软件包中。
+很多实例比应有的更复杂。让  Drupal, Joomla 等运行，使用：</p>
+<div class="highlight"><pre><span class="k">try_files</span> <span class="nv">$uri</span> <span class="nv">$uri/</span> <span class="s">/index.php?q=</span><span class="nv">$uri&amp;$args</span><span class="p">;</span>
+</pre></div>
+<p>注解 - 参数名称根据你使用的包是不同的。例如</p>
+<ul>
+<li>“q” 是 Drupal、Joomla、WordPress 使用的参数</li>
+<li>“page” 是 CMS Made Simple 使用的参数</li>
+</ul>
+<p>一些软件甚至不用查询字符串，而且可以从<code>REQUEST_URI</code>读取（WordPress支持，例如）：</p>
+<div class="highlight"><pre><span class="k">try_files</span> <span class="nv">$uri</span> <span class="nv">$uri/</span> <span class="s">/index.php</span><span class="p">;</span>
+</pre></div>
+<p>当然你的情况可能不同，你可能根据需求添加复杂的规则，但一个基本的网站，这些将完美的工作。
+你可以从简单的开始。</p>
+<p>如果你不在乎目录是否存在，你也可以决定跳过目录检查，从中删除<code>$uri/</code>。</p>
+<h2 id="php">把不受控制的请求给 PHP<a class="headerlink" href="#php" title="Permanent link">¶</a></h2>
+<p>很多对 PHP 的 NGINX 配置样例把每个以<code>.php</code>结尾的 URI 给 PHP 解释器。请注意在大多数 PHP
+设置中，这将是个严重的安全问题，因为它允许任意第三方代码执行。</p>
+<p>出问题的区域通常如下：</p>
+<div class="highlight"><pre><span class="k">location</span> <span class="p">~</span><span class="sr">*</span> <span class="s">\.php</span>$ <span class="p">{</span>
+    <span class="kn">fastcgi_pass</span> <span class="s">backend</span><span class="p">;</span>
+    <span class="c1"># [...]</span>
+<span class="p">}</span>
+</pre></div>
+<p>这里每一个以<code>.php</code>结尾文件的请求将会给<em>FastCGI</em>后端。
+这里的问题是如果全路径并不指向文件系统上实际的文件，默认的 PHP 配置会试图猜测你需要执行哪个文件。</p>
+<p>例如，如果请求不存在的文件<code>/forum/avatar/1232.jpg/file.php</code>，但<code>/forum/avatar/1232.jpg</code>存在，
+PHP 解释器将处理<code>/forum/avatar/1232.jpg</code>。如果它包含 PHP 代码，这段代码将相应的执行。</p>
+<p>下面的选项可以避免上述情况：</p>
+<ul>
+<li>在php.ini中设置<code>cgi.fix_pathinfo=0</code>。使得 PHP 解释器仅尝试给出的路径，如果文件没有找到就停止处理。</li>
+<li>保证 NGINX 仅传给后端指定的 PHP 文件请求：</li>
+</ul>
+<div class="highlight"><pre><span class="k">location</span> <span class="p">~</span><span class="sr">*</span> <span class="s">(file_a|file_b|file_c)\.php</span>$ <span class="p">{</span>
+    <span class="kn">fastcgi_pass</span> <span class="s">backend</span><span class="p">;</span>
+    <span class="c1"># [...]</span>
+<span class="p">}</span>
+</pre></div>
+<ul>
+<li>特别地在任何包含用户上传的目录中禁用 PHP 文件的执行</li>
+</ul>
+<div class="highlight"><pre><span class="k">location</span> <span class="s">/uploaddir</span> <span class="p">{</span>
+    <span class="kn">location</span> <span class="p">~</span> <span class="sr">\.php$</span> <span class="p">{</span><span class="kn">return</span> <span class="mi">403</span><span class="p">;}</span>
+    <span class="c1"># [...]</span>
+<span class="p">}</span>
+</pre></div>
+<ul>
+<li>使用<em>try_files</em>指令过滤</li>
+</ul>
+<div class="highlight"><pre><span class="k">location</span> <span class="p">~</span><span class="sr">*</span> <span class="s">\.php</span>$ <span class="p">{</span>
+    <span class="kn">try_files</span> <span class="nv">$uri</span> <span class="p">=</span><span class="mi">404</span><span class="p">;</span>
+    <span class="kn">fastcgi_pass</span> <span class="s">backend</span><span class="p">;</span>
+    <span class="c1"># [...]</span>
+<span class="p">}</span>
+</pre></div>
+<ul>
+<li>使用嵌套的 location 过滤</li>
+</ul>
+<div class="highlight"><pre><span class="k">location</span> <span class="p">~</span><span class="sr">*</span> <span class="s">\.php</span>$ <span class="p">{</span>
+    <span class="kn">location</span> <span class="p">~</span> <span class="sr">\..*/.*\.php$</span> <span class="p">{</span><span class="kn">return</span> <span class="mi">404</span><span class="p">;}</span>
+    <span class="kn">fastcgi_pass</span> <span class="s">backend</span><span class="p">;</span>
+    <span class="c1"># [...]</span>
+<span class="p">}</span>
+</pre></div>
+<h2 id="script-filename-fastcgi-path">Script Filename 中的 FastCGI Path<a class="headerlink" href="#script-filename-fastcgi-path" title="Permanent link">¶</a></h2>
+<p>一些指南倾向使用绝对路径得到信息。这在 PHP 区块很常见。当你从源安装 NGINX ，通常你能够把
+<code>include fastcgi_params;</code>加入到配置中。该文件通常在 NGINX 配置目录<code>/etc/nginx/</code>。</p>
+<p><strong>GOOD</strong></p>
+<div class="highlight"><pre><span class="k">fastcgi_param</span>  <span class="s">SCRIPT_FILENAME</span>    <span class="nv">$document_root$fastcgi_script_name</span><span class="p">;</span>
+</pre></div>
+<p><strong>BAD</strong></p>
+<div class="highlight"><pre><span class="k">fastcgi_param</span>  <span class="s">SCRIPT_FILENAME</span>    <span class="s">/var/www/yoursite.com/</span><span class="nv">$fastcgi_script_name</span><span class="p">;</span>
+</pre></div>
+<p><code>$document_root</code>在哪里设置？是通过 root 指令在 server 区块设置。root 指令没有配置？看看
+第一个陷阱。</p>
+<h2 id="rewrites">繁杂的 Rewrites<a class="headerlink" href="#rewrites" title="Permanent link">¶</a></h2>
+<p>不要感觉糟糕，正则表达式容易让人困惑。实际上，我们应该努力保持整洁、简单，不增加繁琐的东西，这容易做到。</p>
+<p><strong>BAD</strong></p>
+<div class="highlight"><pre><span class="k">rewrite</span> <span class="s">^/(.*)</span>$ <span class="s">http://example.com/</span><span class="nv">$1</span> <span class="s">permanent</span><span class="p">;</span>
+</pre></div>
+<p><strong>GOOD</strong></p>
+<div class="highlight"><pre><span class="k">rewrite</span> <span class="s">^</span> <span class="s">http://example.com</span><span class="nv">$request_uri?</span> <span class="s">permanent</span><span class="p">;</span>
+</pre></div>
+<p><strong>BETTER</strong></p>
+<div class="highlight"><pre><span class="k">return</span> <span class="mi">301</span> <span class="s">http://example.com</span><span class="nv">$request_uri</span><span class="p">;</span>
+</pre></div>
+<p>第一个 rewrite 捕获在第一个<em>/</em>之后的 URI。通过使用内建变量<code>$request_uri</code>，我们可以有效的避免做任何捕获或者匹配。</p>
+<h2 id="rewrite-http">Rewrite 丢失 <em>http://</em><a class="headerlink" href="#rewrite-http" title="Permanent link">¶</a></h2>
+<p>rewrite 是简单，记得添加<code>scheme</code>。</p>
+<p><strong>BAD</strong></p>
+<div class="highlight"><pre><span class="k">rewrite</span> <span class="s">^</span> <span class="s">example.com</span> <span class="s">permanent</span><span class="p">;</span>
+</pre></div>
+<p><strong>GOOD</strong></p>
+<div class="highlight"><pre><span class="k">rewrite</span> <span class="s">^</span> <span class="s">http://example.com</span> <span class="s">permanent</span><span class="p">;</span>
+</pre></div>
+<p>在上面可以看到，我们在 rewrite 添加了<code>http://</code>。简单有效。</p>
+<h2 id="_3">代理一切<a class="headerlink" href="#_3" title="Permanent link">¶</a></h2>
+<p><strong>BAD</strong></p>
+<div class="highlight"><pre><span class="k">server</span> <span class="p">{</span>
+    <span class="kn">server_name</span> <span class="s">_</span><span class="p">;</span>
+    <span class="kn">root</span> <span class="s">/var/www/site</span><span class="p">;</span>
+    <span class="kn">location</span> <span class="s">/</span> <span class="p">{</span>
+        <span class="kn">include</span> <span class="s">fastcgi_params</span><span class="p">;</span>
+        <span class="kn">fastcgi_param</span> <span class="s">SCRIPT_FILENAME</span> <span class="nv">$document_root$fastcgi_script_name</span><span class="p">;</span>
+        <span class="kn">fastcgi_pass</span> <span class="s">unix:/tmp/phpcgi.socket</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+<p>令人讨厌的，在这种情况下把所有的请求都给 PHP 处理。为什么？Apache 也许是这样做，但你不必。让我这么说吧...
+<code>try_files</code>指令存在的原因，它按特定的顺序尝试文件。意味着 NGINX 可以先尝试提供静态内容。如果不能，继续尝试。
+这样 PHP 根本不参与，快的多。特别是如果你通过 PHP 提供 1MB 图片的时间是直接提供的1000倍，让我们看看该怎么做。</p>
+<p><strong>GOOD</strong></p>
+<div class="highlight"><pre><span class="k">server</span> <span class="p">{</span>
+    <span class="kn">server_name</span> <span class="s">_</span><span class="p">;</span>
+    <span class="kn">root</span> <span class="s">/var/www/site</span><span class="p">;</span>
+    <span class="kn">location</span> <span class="s">/</span> <span class="p">{</span>
+        <span class="kn">try_files</span> <span class="nv">$uri</span> <span class="nv">$uri/</span> <span class="s">@proxy</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="kn">location</span> <span class="s">@proxy</span> <span class="p">{</span>
+        <span class="kn">include</span> <span class="s">fastcgi_params</span><span class="p">;</span>
+        <span class="kn">fastcgi_param</span> <span class="s">SCRIPT_FILENAME</span> <span class="nv">$document_root$fastcgi_script_name</span><span class="p">;</span>
+        <span class="kn">fastcgi_pass</span> <span class="s">unix:/tmp/phpcgi.socket</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+<p><strong>Also GOOD</strong></p>
+<div class="highlight"><pre><span class="k">server</span> <span class="p">{</span>
+    <span class="kn">server_name</span> <span class="s">_</span><span class="p">;</span>
+    <span class="kn">root</span> <span class="s">/var/www/site</span><span class="p">;</span>
+    <span class="kn">location</span> <span class="s">/</span> <span class="p">{</span>
+        <span class="kn">try_files</span> <span class="nv">$uri</span> <span class="nv">$uri/</span> <span class="s">/index.php</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="kn">location</span> <span class="p">~</span> <span class="sr">\.php$</span> <span class="p">{</span>
+        <span class="kn">include</span> <span class="s">fastcgi_params</span><span class="p">;</span>
+        <span class="kn">fastcgi_param</span> <span class="s">SCRIPT_FILENAME</span> <span class="nv">$document_root$fastcgi_script_name</span><span class="p">;</span>
+        <span class="kn">fastcgi_pass</span> <span class="s">unix:/tmp/phpcgi.socket</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+<p>很简单，是不是？如果请求的 URI 存在，NGINX 直接提供。如果不存在，检查目录是否存在。如果不存在，传递给你的代理。
+只有当 NGINX 不能直接服务请求的 URI，你的代理将参与开销。</p>
+<p>现在想想你的多少请求是静态资源，比如 images、css、javascript 等。你可能节省很多开销。</p>
+<h2 id="_4">配置更改没有生效<a class="headerlink" href="#_4" title="Permanent link">¶</a></h2>
+<p>浏览器缓存。你的配置也许是很棒的，但你会坐在那，撞墙一个月。问题出在你的浏览器缓存。
+当你下载了东西，你的浏览器会保存下来。同时也保存了文件是如何提供的。如果你配置有 types 区块，你会遇到这情况。</p>
+<p>处理方法：</p>
+<ul>
+<li>在 Firefox 浏览器中按 Ctrl+Shift+Delete，检查缓存，点击 <em>Clear Now</em>。其他浏览器，可搜索下方法。
+每次更改之后都清除下，会为你节省不少麻烦。</li>
+<li>使用 <em>curl</em>。</li>
+</ul>
+<h2 id="virtualbox">VirtualBox<a class="headerlink" href="#virtualbox" title="Permanent link">¶</a></h2>
+<p>如果这不起作用,而且你在 VirtualBox 中的虚拟机中运行 NGINX，也许是<code>sendfile()</code>引起的问题。
+简单的注释掉<code>sendfile</code>指令，或者设置为“off”。</p>
+<div class="highlight"><pre><span class="k">sendfile</span> <span class="no">off</span><span class="p">;</span>
+</pre></div>
+<h2 id="http">缺失的 HTTP 头<a class="headerlink" href="#http" title="Permanent link">¶</a></h2>
+<p>如果你没有明确的设置<code>underscores_in_headers on</code>，NGINX 将会默默地忽略掉带有下划线的头信息（根据 HTTP 标准是完全有效的）。
+这样做为了防止头信息映射到 CGI 变量过程中破折号和下划线都映射成下划线引起歧义。</p>
+<h2 id="document-root-locations">没有使用标准的 Document Root Locations<a class="headerlink" href="#document-root-locations" title="Permanent link">¶</a></h2>
+<p>有些目录在任何文件系统中不应该用于托管数据。其中包括<code>/</code>和<code>/root</code>。你不应该使用这些作为网站根目录。</p>
+<p>这样作让你的隐私数据毫无预期的返回给请求。</p>
+<p>永远不要这样做！！！</p>
+<div class="highlight"><pre><span class="k">server</span> <span class="p">{</span>
+    <span class="kn">root</span> <span class="s">/</span><span class="p">;</span>
+
+    <span class="kn">location</span> <span class="s">/</span> <span class="p">{</span>
+        <span class="kn">try_files</span> <span class="s">/web/</span><span class="nv">$uri</span> <span class="nv">$uri</span> <span class="s">@php</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="kn">location</span> <span class="s">@php</span> <span class="p">{</span>
+        <span class="c1"># [...]</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+<p>当一个请求<code>/foo</code>，因为文件找不到将代理到 php 。这看起来正常，直到请求<code>/etc/passwd</code>。是的，你给了服务器上所有用户列表。
+在某些情况下，Nginx 服务器进程被设置以 root 用户运行。是的，我们现在有你的用户列表以及密码 hash 密码，以及如何 hash 的。</p>
+<p>文件系统层级标准定义了数据应该存在哪里。你应该看看。
+简而言之，你的 web 内容可以存放在<code>/var/www/</code>、<code>/srv</code>、<code>/usr/share/www</code>。</p>
+<h2 id="document-root">使用默认的 Document Root<a class="headerlink" href="#document-root" title="Permanent link">¶</a></h2>
+<p>Ubuntu、Debian 等其他操作系统中NGINX包，作为易于安装的包会提供默认的配置文件用作一个例子，而且会包含网站根目录存储基本的
+HTML 文件。</p>
+<p>多数系统包不检查默认的<em>Document Root</em>中文件是否存在或者修改。这样会在软件包升级时导致代码丢失。经验丰富的系统管理员没有期望在
+升级期间默认的<em>document root</em>内容保持不变。</p>
+<p>你不应该对将网站的关键文件使用默认的<em>document root</em>。在你的系统升级或者更新 NGINX 包时有很大可能性会导致默认的<em>document root</em>
+内容会改变。</p>
+<h2 id="hostname">使用 Hostname 去解析地址<a class="headerlink" href="#hostname" title="Permanent link">¶</a></h2>
+<p><strong>BAD</strong></p>
+<div class="highlight"><pre><span class="k">upstream</span> <span class="p">{</span>
+    <span class="kn">server</span> <span class="s">http://someserver</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">server</span> <span class="p">{</span>
+    <span class="kn">listen</span> <span class="n">myhostname</span><span class="p">:</span><span class="mi">80</span><span class="p">;</span>
+    <span class="c1"># [...]</span>
+<span class="p">}</span>
+</pre></div>
+<p>你不应该在 listen 指令中使用 hostname。也许这样有效，也将会有大量的问题。
+其中一个问题是在服务启动或者重启时 hostname 不能解析。这会引起 NGINX 无法绑定到特定的 TCP 端口，最终 NGINX 启动失败。</p>
+<p>更安全的做法是知道需要绑定的 IP 地址，并使用 IP 而不是 hostname。 阻止 NGINX 需要查找 IP ，不依赖内部或者外部的解析。</p>
+<p>upstream 区块也有同样的问题。并不是总要在 upstream 区块避免使用 hostname，这不是好的做法，使用时要考虑清楚。</p>
+<p><strong>GOOD</strong></p>
+<div class="highlight"><pre><span class="k">upstream</span> <span class="p">{</span>
+    <span class="kn">server</span> <span class="s">http://10.48.41.12</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">server</span> <span class="p">{</span>
+    <span class="kn">listen</span> <span class="n">127.0.0.16</span><span class="p">:</span><span class="mi">80</span><span class="p">;</span>
+    <span class="c1"># [...]</span>
+<span class="p">}</span>
+</pre></div>
+<h2 id="https-sslv3">HTTPS 中使用 SSLv3<a class="headerlink" href="#https-sslv3" title="Permanent link">¶</a></h2>
+<p>由于 SSLv3 的POODLE漏洞，建议在 SSL 的网站不启用 SSLv3。你可以很简单的禁用 SSLv3，只提供 TLS 协议。</p>
+<div class="highlight"><pre><span class="k">ssl_protocols</span> <span class="s">TLSv1</span> <span class="s">TLSv1.1</span> <span class="s">TLSv1.2</span><span class="p">;</span>
+</pre></div>
+            <section>
+    <p id="post-share-links">
+    Share on:
+    <a href="http://twitter.com/home?status=Nginx%20%E9%85%8D%E7%BD%AE%E9%99%B7%E9%98%B1%E5%92%8C%E5%B8%B8%E8%A7%81%E9%94%99%E8%AF%AF%EF%BC%88%E7%BF%BB%E8%AF%91%EF%BC%89%20http%3A//www.7rack.info/Nginx-Config-Pitfalls.html" target="_blank" title="Share on Twitter">Twitter</a>
+    ❄
+    <a href="http://www.facebook.com/sharer/sharer.php?s=100&amp;p%5Burl%5D=http%3A//www.7rack.info/Nginx-Config-Pitfalls.html" target="_blank" title="Share on Facebook">Facebook</a>
+    ❄
+    <a href="https://plus.google.com/share?url=http%3A//www.7rack.info/Nginx-Config-Pitfalls.html" target="_blank" title="Share on Google Plus">Google+</a>
+    ❄
+    <a href="mailto:?subject=Nginx%20%E9%85%8D%E7%BD%AE%E9%99%B7%E9%98%B1%E5%92%8C%E5%B8%B8%E8%A7%81%E9%94%99%E8%AF%AF%EF%BC%88%E7%BF%BB%E8%AF%91%EF%BC%89&amp;body=http%3A//www.7rack.info/Nginx-Config-Pitfalls.html" target="_blank" title="Share via Email">Email</a>
+    </p>
+</section>
+
+            <section>
+<div class="accordion" id="accordion2">
+    <div class="accordion-group">
+        <div class="accordion-heading">
+            <a class="accordion-toggle disqus-comment-count" data-toggle="collapse" data-parent="#accordion2"
+                href="http://www.7rack.info/Nginx-Config-Pitfalls.html#disqus_thread">
+                Comments
+            </a>
+        </div>
+        <div id="disqus_thread" class="accordion-body collapse">
+            <div class="accordion-inner">
+                <div class="comments">
+                    <div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_shortname = '7rack';
+        var disqus_identifier = 'http://www.7rack.info/Nginx-Config-Pitfalls.html';
+    var disqus_url = 'http://www.7rack.info/Nginx-Config-Pitfalls.html';
+
+    (function() {
+         var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+         dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+         (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+     })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</section>
+
+            <hr/>
+            <aside>
+            <nav>
+            <ul class="articles-timeline">
+                <li class="previous-article">« <a href="http://www.7rack.info/Distributed-Monitoring-by-Zabbix.html" title="Previous: Zabbix 分布式监控">Zabbix 分布式监控</a></li>
+            </ul>
+            </nav>
+            </aside>
+        </div>
+        <section>
+        <div class="span2" style="float:right;font-size:0.9em;">
+            <h4>Published</h4>
+            <time pubdate="pubdate" datetime="2015-11-23T21:22:00+08:00">11 23, 2015</time>
+            <h4>Category</h4>
+            <a class="category-link" href="http://www.7rack.info/categories.html#devops-ref">Devops</a>
+            <h4>Tags</h4>
+            <ul class="list-of-tags tags-in-article">
+                <li><a href="http://www.7rack.info/tags.html#nginx-ref">Nginx
+                    <span>1</span>
+</a></li>
+            </ul>
+<h4>Contact</h4>
+    <a href="mailto:vimxiang@gmail.com" title="My Email Address" class="sidebar-social-links" target="_blank">
+    <i class="fa fa-envelope sidebar-social-links"></i></a>
+    <a href="http://github.com/7rack" title="My Github Profile" class="sidebar-social-links" target="_blank">
+    <i class="fa fa-github sidebar-social-links"></i></a>
+        </div>
+        </section>
+</div>
+</article>
+                </div>
+                <div class="span1"></div>
+            </div>
+        </div>
+        <div id="push"></div>
+    </div>
+<footer>
+<div id="footer">
+    <ul class="footer-content">
+        <li class="elegant-power">Powered by <a href="http://getpelican.com/" title="Pelican Home Page">Pelican</a>. Theme: <a href="http://oncrashreboot.com/pelican-elegant" title="Theme Elegant Home Page">Elegant</a> by <a href="http://oncrashreboot.com" title="Talha Mansoor Home Page">Talha Mansoor</a></li>
+    </ul>
+</div>
+</footer>            <script src="http://code.jquery.com/jquery.min.js"></script>
+        <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+        <script>
+            function validateForm(query)
+            {
+                return (query.length > 0);
+            }
+        </script>
+
+            <script type="text/javascript">
+var disqus_shortname = '7rack';
+(function () {
+    var s = document.createElement('script'); s.async = true;
+    s.type = 'text/javascript';
+    s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+    (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+}());
+</script>
+<script  language="javascript" type="text/javascript">
+function uncollapse() {
+    if (window.location.hash.match(/^#comment-\d+$/)) {
+        $('#disqus_thread').collapse('show');
+    }
+}
+</script>
+<script type="text/javascript" language="JavaScript">
+uncollapse();
+window.onhashchange=function(){
+    if (window.location.hash.match(/^#comment-\d+$/))
+        window.location.reload(true);
+}
+</script>
+<script>
+$('#disqus_thread').on('shown', function () {
+    var link = document.getElementsByClassName('accordion-toggle');
+    var old_innerHTML = link[0].innerHTML;
+    $(link[0]).fadeOut(500, function() {
+        $(this).text('Click here to hide comments').fadeIn(500);
+    });
+    $('#disqus_thread').on('hidden', function () {
+        $(link[0]).fadeOut(500, function() {
+            $(this).text(old_innerHTML).fadeIn(500);
+        });
+    })
+})
+</script>
+
+
+    </body>
+    <!-- Theme: Elegant built for Pelican
+    License : http://oncrashreboot.com/pelican-elegant -->
+</html>
